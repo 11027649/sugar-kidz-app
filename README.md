@@ -8,7 +8,7 @@ Er zijn veel jonge kinderen met diabetes. Voor deze groep kinderen bestaat er ge
 
 In de app worden kinderen gemotiveerd om 4x per dag hun bloedsuiker te checken, doordat ze XP krijgen als zij hun bloedsuikers invullen.
 
-![Voorstelling van deze app](docs/project_proposal.jpg)
+![Voorstelling van deze app](docs/proposal.jpg)
 
 De belangrijkste functies van de app zijn:
 1. Inloggen en registreren
