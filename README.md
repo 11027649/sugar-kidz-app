@@ -38,9 +38,11 @@ Firebase om gegevens van gebruikers bij te houden.
 
 ### Vergelijkbare mobiele apps
 
-Diabetes:m is een app voor volwassenen om hun bloedsuikers bij te houden.
-Pokémon Go! is een app waarbij je pokémon kan verzamelen.
-Jerry the Bear is de enige app speciaal over diabetes voor kinderen. Dit is een hele andere appp dan de app die ik heb gemaakt. Je kan Jerry (de beer) zijn bloedsuiker controleren, insuline toedienen en eten geven (koolhydraten tellen.) Deze app is in het engels.
+_Diabetes:m_ is een app voor volwassenen om hun bloedsuikers bij te houden.
+
+_Pokémon Go!_ is een app waarbij je pokémon kan verzamelen.
+
+_Jerry the Bear_ is de enige app over diabetes speciaal voor kinderen. Dit is een hele andere appp dan de app die ik ga maken. Jerry heeft diabetes. Je kan zijn bloedsuiker controleren, insuline toedienen en eten geven (koolhydraten tellen.) Je doet verder niets met je eigen suikerwaardes. Deze app is in het engels.
 
 Verder zijn er veel apps om diabetes dagboeken bij te houden en apps met koolhydraatarme recepten.
 
