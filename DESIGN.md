@@ -4,7 +4,7 @@ For each activity, different functions and databases are needed, they are descri
 
 ## Advanced Sketch
 In this sketch the interactions between the activities are easy to see. You can also see what activity uses what data source.
-![Advanced Design, with interactions and file names](docs/design.jpg)
+![Advanced Design, with interactions and file names](docs/design2.jpg)
 
 ## Register/ Log in activity
 In this Activity you register as a user or as a parent. If you already have an account, you just log in.
