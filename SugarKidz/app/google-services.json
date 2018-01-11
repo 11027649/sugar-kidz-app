@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "639710525479",
+    "firebase_url": "https://sugarkidz-2afee.firebaseio.com",
+    "project_id": "sugarkidz-2afee",
+    "storage_bucket": "sugarkidz-2afee.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:639710525479:android:e35ade74f2701702",
+        "android_client_info": {
+          "package_name": "e.natasja.sugar_kidz"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "639710525479-omvf5sam7jmqlaua4371di2ve8rp0g0f.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "e.natasja.sugar_kidz",
+            "certificate_hash": "e5114361da34e9d6a0dc81952ab3b1d4d9b135d1"
+          }
+        },
+        {
+          "client_id": "639710525479-9tvfohvi0bpg7ortvl8ri9aljn85mkt2.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBW6J2Dx0Ah-n46PPSF-TnKM-mu0Fwv7dk"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "639710525479-9tvfohvi0bpg7ortvl8ri9aljn85mkt2.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
