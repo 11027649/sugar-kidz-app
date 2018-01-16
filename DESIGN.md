@@ -65,9 +65,9 @@ _Firebase Database_
               1. title of this measurement (VO,NO,VL,NL,VA,NA,VS, extra (these are dutch moments of the day that are common moments to                    measure your blood glucose))
               1. time of the measurement
               1. bloodglucose in mmol/L
-    1. owned pokémon
-       1. name
-          1. figure of the pokemon
+       1. owned pokémon
+          1. name
+              1. figure of the pokemon
               
 ![Users Information Functions](docs/users_database.jpg)
       
