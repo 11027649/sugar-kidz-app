@@ -8,32 +8,38 @@
     tools:context="e.natasja.sugar_kidz.MainActivity">
 
     <TextView
+        android:id="@+id/logout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:onClick="logout"
+        android:text="@string/Uitloggen"
+        android:textAlignment="textEnd"
+        android:textColor="@color/colorAccent"
+        android:textStyle="italic" />
+
+    <TextView
         android:id="@+id/SugarKidz"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
         android:fontFamily="cursive"
-        android:text="Sugar Kidz!"
+        android:text="@string/sugar_kidz"
         android:textAlignment="center"
-        android:textSize="30sp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:textSize="36sp"
+        app:layout_constraintBottom_toTopOf="@+id/textView12"
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <TextView
+        android:id="@+id/air1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
     <TextView
+        android:id="@+id/textView6"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Je laatst gemeten bloedsuiker" />
-
-    <TextView
-        android:id="@+id/textView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="11 januari, 12:00"
-        android:textAlignment="textEnd" />
+        android:text="@string/je_laatst_gemeten_bloedsuiker"
+        android:textSize="18sp" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -41,29 +47,137 @@
         android:orientation="horizontal">
 
         <TextView
+            android:id="@+id/textView"
+            android:layout_width="143dp"
+            android:layout_height="wrap_content"
+            android:text="@string/_11_januari_12_00"
+            android:textAlignment="center" />
+
+        <TextView
             android:id="@+id/textView4"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="  4,2 "
+            android:text="4,2"
             android:textSize="36sp"
             android:textStyle="bold" />
 
         <TextView
             android:id="@+id/textView5"
-            android:layout_width="wrap_content"
+            android:layout_width="102dp"
             android:layout_height="wrap_content"
-            android:text="mmol/Liter"
+            android:text="@string/mmol_liter"
             android:textSize="18sp" />
+
     </LinearLayout>
 
-    <TableLayout
+    <TextView
+        android:id="@+id/air2"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="20dp" />
 
-        <TableRow
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/textView12"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="2dip"
+            android:background="#000000"
+            android:text="@string/stripes" />
 
-    </TableLayout>
+        <TextView
+            android:id="@+id/air5"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/time"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/_12_39"
+                    android:textSize="18sp" />
+
+                <TextView
+                    android:id="@+id/date"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/_15_01_18"
+                    android:onClick="datePicker"
+                    android:textSize="18sp" />
+            </LinearLayout>
+
+            <EditText
+                android:id="@+id/titleMeasurement"
+                android:layout_width="67dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:hint="VO"
+                android:inputType="text" />
+
+            <AutoCompleteTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />
+
+            <EditText
+                android:id="@+id/hightMeasurement"
+                android:layout_width="70dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:ems="10"
+                android:hint="@string/_4_2"
+                android:inputType="numberDecimal"
+                android:labelFor="@+id/editText" />
+
+            <Button
+                android:id="@+id/addMeasurement"
+                style="@style/Widget.AppCompat.Button.Borderless.Colored"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/ok" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/air4"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/textView11"
+            android:layout_width="match_parent"
+            android:layout_height="2dip"
+            android:background="#000000"
+            android:text="@string/stripes" />
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/air3"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <TextView
+        android:id="@+id/textView7"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/je_metingen_van_vandaag"
+        android:textSize="18sp" />
+
+    <ListView
+        android:id="@+id/listView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
 
 </LinearLayout>

@@ -37,7 +37,7 @@ public class PokelistAdapter extends ArrayAdapter {
         pokemonName.setTextColor(Color.BLACK);
 
         pokemonPrice.setText(pokemon.price);
-        pokemonName.setText(pokemon.name);
+        pokemonName.setText("Hey, ik ben een: " + pokemon.name + "!");
         pokemonImage.setImageBitmap(pokemon.sprite);
 
         return view;

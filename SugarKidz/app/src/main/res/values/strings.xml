@@ -13,4 +13,15 @@
     <string name="permission_rationale">"Contacts permissions are needed for providing email
         completions."
     </string>
+    <string name="Uitloggen">Klik hier om uit te loggen.</string>
+    <string name="ok">Ok</string>
+    <string name="sugar_kidz">Sugar Kidz!</string>
+    <string name="je_laatst_gemeten_bloedsuiker">Je laatst gemeten bloedsuiker:</string>
+    <string name="_11_januari_12_00">11 januari, 12:00</string>
+    <string name="mmol_liter">mmol/Liter</string>
+    <string name="je_metingen_van_vandaag">Je metingen van vandaag</string>
+    <string name="_12_39">12:39</string>
+    <string name="stripes" />
+    <string name="_4_2">4.2</string>
+    <string name="_15_01_18">15-01-18</string>
 </resources>

@@ -42,7 +42,7 @@ public class PokeshopActivity extends AppCompatActivity {
         gestureObject = new GestureDetectorCompat(this, new LearnGesture());
         pokemons = new ArrayList<>();
 
-        for (int i = 0; i < 10; i++) {
+        for (int i = 10; i < 21; i++) {
             PokemonRequest(i);
         }
     }
@@ -53,6 +53,7 @@ public class PokeshopActivity extends AppCompatActivity {
 
         // use a trivia api to get questions: it's not secured so you only need the url
         String url = "https://pokeapi.co/api/v2/pokemon/" + pokemon + "/";
+        Log.d(TAG, url);
 
         // Request a string response from the provided URL.
         JsonObjectRequest jsObjRequest = new JsonObjectRequest
@@ -62,14 +63,19 @@ public class PokeshopActivity extends AppCompatActivity {
                         try {
                             JSONObject group = response.getJSONObject("sprites");
                             String imageUrl = group.getString("front_default");
-                            imageRequestFunction(imageUrl);
+
+                            JSONArray forms = response.getJSONArray("forms");
+                            JSONObject thing = forms.getJSONObject(0);
+
+                            String pokemonName = thing.getString("name");
+
+                            Log.d(TAG, imageUrl);
+                            imageRequestFunction(pokemonName, imageUrl);
 
                         } catch (JSONException e) {
 
                             // show error (in case of an error) jsonobject to array
                             Log.w(TAG, "JsonObject to Json Array didn't go right.");
-                            Toast.makeText(getApplicationContext(), "No response on request.",
-                                    Toast.LENGTH_LONG).show();
                         }
                     }
                 }, new Response.ErrorListener() {
@@ -87,11 +93,11 @@ public class PokeshopActivity extends AppCompatActivity {
         queue.add(jsObjRequest);
     }
 
-    public void imageRequestFunction(String imageUrl) {
+    public void imageRequestFunction(final String pokemonName, String imageUrl) {
         ImageRequest imageRequest = new ImageRequest(imageUrl, new Response.Listener<Bitmap>() {
             @Override
             public void onResponse(Bitmap bitmap) {
-                Pokemon pokemon = new Pokemon("Hey, ik ben een pokemon!", "1000XP", bitmap);
+                Pokemon pokemon = new Pokemon(pokemonName, "1000XP", bitmap);
                 pokemons.add(pokemon);
 
                 updateList();
