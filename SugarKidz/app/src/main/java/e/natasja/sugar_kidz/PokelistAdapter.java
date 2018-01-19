@@ -2,6 +2,7 @@ package e.natasja.sugar_kidz;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,8 +21,9 @@ public class PokelistAdapter extends ArrayAdapter {
         super(context, 0, pokemons);
     }
 
+    @NonNull
     @Override
-    public View getView(int position, View view, ViewGroup parent) {
+    public View getView(int position, View view, @NonNull ViewGroup parent) {
 
         Pokemon pokemon = (Pokemon) getItem(position);
 
@@ -37,7 +39,8 @@ public class PokelistAdapter extends ArrayAdapter {
         pokemonName.setTextColor(Color.BLACK);
 
         pokemonPrice.setText(pokemon.price);
-        pokemonName.setText("Hey, ik ben een: " + pokemon.name + "!");
+        String pokemonNameText = "Hey, ik ben een " + pokemon.name + "!";
+        pokemonName.setText(pokemonNameText);
         pokemonImage.setImageBitmap(pokemon.sprite);
 
         return view;

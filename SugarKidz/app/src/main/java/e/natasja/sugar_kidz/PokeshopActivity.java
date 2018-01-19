@@ -42,7 +42,7 @@ public class PokeshopActivity extends AppCompatActivity {
         gestureObject = new GestureDetectorCompat(this, new LearnGesture());
         pokemons = new ArrayList<>();
 
-        for (int i = 10; i < 21; i++) {
+        for (int i = 50; i < 65; i++) {
             PokemonRequest(i);
         }
     }

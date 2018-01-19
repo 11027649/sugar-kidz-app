@@ -107,6 +107,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@string/_12_39"
+                    android:onClick="timePicker"
                     android:textSize="18sp" />
 
                 <TextView
@@ -118,24 +119,16 @@
                     android:textSize="18sp" />
             </LinearLayout>
 
-            <EditText
-                android:id="@+id/titleMeasurement"
-                android:layout_width="67dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:hint="VO"
-                android:inputType="text" />
-
-            <AutoCompleteTextView
+            <Spinner
+                android:id="@+id/labelMeasurement"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1" />
 
             <EditText
                 android:id="@+id/hightMeasurement"
-                android:layout_width="70dp"
+                android:layout_width="100dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
                 android:ems="10"
                 android:hint="@string/_4_2"
                 android:inputType="numberDecimal"
@@ -146,6 +139,8 @@
                 style="@style/Widget.AppCompat.Button.Borderless.Colored"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:onClick="addMeasurement"
+                android:layout_gravity="end"
                 android:text="@string/ok" />
         </LinearLayout>
 
