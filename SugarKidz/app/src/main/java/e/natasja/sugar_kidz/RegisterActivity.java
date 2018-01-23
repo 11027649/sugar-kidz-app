@@ -6,6 +6,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -55,39 +56,6 @@ public class RegisterActivity extends AppCompatActivity {
 
     }
 
-    public void createAccount() {
-        mAuth.createUserWithEmailAndPassword(email, password)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-                            // Sign in success, update UI with the signed-in user's information
-                            Log.d(TAG, "createUserWithEmail:success");
-
-                            EditText usernameEditText = findViewById(R.id.username);
-                            String username = usernameEditText.getText().toString();
-
-                            // make a new user and find user id
-                            User aUser = new User(username, 1000);
-
-                            FirebaseUser currentUser = mAuth.getCurrentUser();
-                            String userId = currentUser.getUid();
-
-                            mRef.child("users").child(userId).setValue(aUser);
-
-                            Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-                            startActivity(intent);
-                        } else {
-                            // If sign in fails, display a message to the user.
-                            Log.w(TAG, "createUserWithEmail:failure", task.getException());
-                            Toast.makeText(RegisterActivity.this, "Registration failed, " +
-                                            "please pick a valid email and password.",
-                                    Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                });
-    }
-
     /**
      * Log in existing users, or create account for users that want to register.
      */
@@ -114,6 +82,52 @@ public class RegisterActivity extends AppCompatActivity {
                         Toast.LENGTH_SHORT).show();
             }
         }
+    }
+
+    public void createAccount() {
+        mAuth.createUserWithEmailAndPassword(email, password)
+                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if (task.isSuccessful()) {
+                            // Sign in success, update UI with the signed-in user's information
+                            Log.d(TAG, "createUserWithEmail:success");
+
+                            EditText usernameEditText = findViewById(R.id.username);
+                            String username = usernameEditText.getText().toString();
+
+                            // make a new user and find user id
+                            FirebaseUser currentUser = mAuth.getCurrentUser();
+                            String userId = currentUser.getUid();
+
+                            // check if new user is a parent
+                            CheckBox parent = findViewById(R.id.parentCheckbox);
+                            User aUser;
+
+                            if (parent.isChecked()) {
+                                aUser = new User(username, true,null);
+                                mRef.child("users").child(userId).setValue(aUser);
+
+                                Intent intent = new Intent(getApplicationContext(), LogbookActivity.class);
+                                finish();
+                                startActivity(intent);
+                            } else {
+                                aUser = new User(username, false,1000);
+                                mRef.child("users").child(userId).setValue(aUser);
+
+                                Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                                finish();
+                                startActivity(intent);
+                            }
+                        } else {
+                            // If sign in fails, display a message to the user.
+                            Log.w(TAG, "createUserWithEmail:failure", task.getException());
+                            Toast.makeText(RegisterActivity.this, "Registration failed, " +
+                                            "please pick a valid email and password.",
+                                    Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
     }
 
 }

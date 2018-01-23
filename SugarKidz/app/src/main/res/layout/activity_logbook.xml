@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="e.natasja.sugar_kidz.LogbookActivity">
+
+    <TextView
+        android:id="@+id/measurements"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Al je metingen"
+        android:textAlignment="center"
+        android:textSize="24sp"
+        android:textStyle="italic" />
+
+    <TextView
+        android:id="@+id/backToMain"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Terug naar hoofdscherm"
+        android:textAlignment="textEnd"
+        android:onClick="goToMain"
+        android:textColor="@color/colorAccent"
+        android:textStyle="italic" />
+
+    <ListView
+        android:id="@+id/totalLogbookListView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+    </ListView>
+
+</LinearLayout>

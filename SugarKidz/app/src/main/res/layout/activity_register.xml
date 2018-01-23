@@ -101,9 +101,10 @@
 
 
             <CheckBox
+                android:id="@+id/parentCheckbox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Ik ben een ouder" />
+                android:text="Ik ben een ouder/verzorger" />
 
             <Button
                 android:id="@+id/registerButton"

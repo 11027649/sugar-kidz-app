@@ -1,27 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
     tools:context="e.natasja.sugar_kidz.PokeshopActivity">
 
-    <TextView
-        android:id="@+id/pokeshop"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Pokeshop Activity"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:orientation="horizontal">
 
-    <Button
-        android:id="@+id/gardenButton"
-        android:layout_width="wrap_content"
+        <TextView
+            android:id="@+id/XP"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="XP Amount: "
+            android:textSize="18sp"
+            android:textStyle="italic" />
+
+        <TextView
+            android:id="@+id/xpAmount"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="loading.." />
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:onClick="goToGarden"
-        android:text="Ga naar je tuin..."
-        app:layout_constraintTop_toBottomOf="@+id/pokeshop" />
+        android:text="Klik hier om naar je tuin te gaan"
+        android:textAlignment="textEnd"
+        android:textColor="@color/colorAccent"
+        android:textSize="14sp"
+        android:textStyle="italic" />
 
     <ListView
         android:id="@+id/pokemonListView"

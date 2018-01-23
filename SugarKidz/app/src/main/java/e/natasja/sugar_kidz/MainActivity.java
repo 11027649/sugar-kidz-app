@@ -41,6 +41,8 @@ import java.util.Iterator;
 public class MainActivity extends AppCompatActivity {
     String dateToday;
 
+    ArrayList<Measurement> measurementArray;
+
     TextView date;
     TextView time;
     SimpleDateFormat dateSDF;
@@ -96,8 +98,8 @@ public class MainActivity extends AppCompatActivity {
         FirebaseUser user = mAuth.getCurrentUser();
         String userId = user.getUid();
         DatabaseReference mDatabaseRef = mDatabase.getReference("users/" + userId + "/Measurements/" + dateToday);
-        final ArrayList<Measurement> measurementArray = new ArrayList<>();
 
+        measurementArray = new ArrayList<>();
         measurementArray.clear();
 
         mDatabaseRef.addValueEventListener(new ValueEventListener() {
@@ -218,42 +220,52 @@ public class MainActivity extends AppCompatActivity {
 
             SimpleMeasurement simple = new SimpleMeasurement(label, height);
 
-
-            // mDatabaseRef.child("Measurements").child(dateMeasurement).child(timeMeasurement).child(label).setValue(height)
-
             mDatabaseRef.child("Measurements").child(dateMeasurement).child(timeMeasurement).setValue(simple).addOnCompleteListener(new OnCompleteListener<Void>() {
                 @Override
                 public void onComplete(@NonNull Task<Void> task) {
                     if (!task.isSuccessful()){
                         Toast.makeText(getApplicationContext(), task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                     } else {
-                        Toast.makeText(MainActivity.this, "Je hebt deze meting toegevoegd!" + dateMeasurement + timeMeasurement + label + height, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(MainActivity.this, "Je hebt deze meting toegevoegd!", Toast.LENGTH_SHORT).show();
 
-                        // Read from the database
-                        mDatabaseRef.addValueEventListener(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(DataSnapshot dataSnapshot) {
-                                // This method is called once with the initial value and again
-                                // whenever data at this location is updated.
-
-                                String XPamount = dataSnapshot.child("xpAmount").getValue().toString();
-                                Log.d(TAG, "XPAmount is: " + XPamount);
-
-                                Integer XPamountNew = Integer.parseInt(XPamount) + 100;
-                                mDatabaseRef.child("xpAmount").setValue(XPamountNew);
-
-                            }
-
-                            @Override
-                            public void onCancelled(DatabaseError error) {
-                                // Failed to read value
-                                Log.w(TAG, "Failed to read value.", error.toException());
-                            }
-                        });
+                        gainXP(mDatabaseRef);
                     }
                 }
             });
             }
+    }
+
+    public void gainXP(final DatabaseReference mDatabaseRef) {
+
+        final ValueEventListener listener = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                // This method is called once with the initial value and again
+                // whenever data at this location is updated.
+
+                Long XPamount = (long) dataSnapshot.child("xpAmount").getValue();
+                Log.d(TAG, "XPAmount is: " + XPamount);
+
+                Long XPamountNew = XPamount + 100;
+                mDatabaseRef.child("xpAmount").setValue(XPamountNew);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError error) {
+                // Failed to read value
+                Log.w(TAG, "Failed to read value.", error.toException());
+            }
+        };
+
+        // Read from the database
+        mDatabaseRef.addListenerForSingleValueEvent(listener);
+
+    }
+
+    public void goToLogbook(View view) {
+        Intent intent = new Intent(this, LogbookActivity.class);
+        finish();
+        startActivity(intent);
     }
 
     class LearnGesture extends GestureDetector.SimpleOnGestureListener {

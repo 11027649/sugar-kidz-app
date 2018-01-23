@@ -5,12 +5,14 @@ import android.graphics.Bitmap;
 import android.support.v4.view.GestureDetectorCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.Html;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.Request;
@@ -20,6 +22,12 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -42,9 +50,50 @@ public class PokeshopActivity extends AppCompatActivity {
         gestureObject = new GestureDetectorCompat(this, new LearnGesture());
         pokemons = new ArrayList<>();
 
-        for (int i = 50; i < 65; i++) {
+        showXPAMount();
+
+        for (int i = 70; i < 100; i++) {
             PokemonRequest(i);
         }
+    }
+
+    public void showXPAMount() {
+        TextView XPTextView = findViewById(R.id.XP);
+        final TextView XPAmountTextView = findViewById(R.id.xpAmount);
+
+        String text =   "<font color='red'>X</font>" +
+                "<font color='orange'>P</font>" + " " +
+                "<font color='yellow'>A</font>" +
+                "<font color='green'>m</font>" +
+                "<font color='blue'>o</font>" +
+                "<font color='indigo'>u</font>" +
+                "<font color='violet'>n</font>" +
+                "<font color='red'>t</font>" + ": ";
+
+        XPTextView.setText(Html.fromHtml(text), TextView.BufferType.SPANNABLE);
+
+        FirebaseAuth mAuth = FirebaseAuth.getInstance();
+        String userID = mAuth.getCurrentUser().getUid();
+        DatabaseReference myRef = FirebaseDatabase.getInstance().getReference("users/" + userID + "/xpAmount");
+
+        // Read from the database
+        myRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                // This method is called once with the initial value and again
+                // whenever data at this location is updated.
+                Long xpAmount = (Long) dataSnapshot.getValue();
+
+                Log.d(TAG, "Value is: " + xpAmount);
+                XPAmountTextView.setText(xpAmount.toString());
+            }
+
+            @Override
+            public void onCancelled(DatabaseError error) {
+                // Failed to read value
+                Log.w(TAG, "Failed to read value.", error.toException());
+            }
+        });
     }
 
     public void PokemonRequest(int pokemon) {

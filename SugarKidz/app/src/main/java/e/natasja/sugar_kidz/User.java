@@ -7,6 +7,7 @@ package e.natasja.sugar_kidz;
 public class User {
     //properties of the class
     public String username;
+    public Boolean isParent;
     public Integer xpAmount;
 
 
@@ -14,8 +15,9 @@ public class User {
     public User() {}
 
     // 'normal' constructor of the class
-    public User(String anUsername, Integer aXPAmount) {
+    public User(String anUsername, Boolean isParent, Integer aXPAmount) {
         this.username = anUsername;
+        this.isParent = isParent;
         this.xpAmount = aXPAmount;
     }
 }
