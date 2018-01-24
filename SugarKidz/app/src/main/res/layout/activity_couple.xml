@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="e.natasja.sugar_kidz.CoupleActivity">
+
+    <TextView
+        android:id="@+id/textView16"
+        android:layout_width="match_parent"
+        android:layout_height="53dp"
+        android:fontFamily="sans-serif"
+        android:text="Koppel je apparaat!"
+        android:textAlignment="center"
+        android:textSize="24sp" />
+
+    <TextView
+        android:id="@+id/goToMain"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:onClick="goBackFromCouple"
+        android:text="Terug"
+        android:textAlignment="textEnd"
+        android:textColor="@color/colorAccent"
+        android:textStyle="italic" />
+
+    <LinearLayout
+        android:id="@+id/username"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:visibility="invisible">
+
+        <TextView
+            android:id="@+id/textView2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Je gebruikersnaam: "
+            android:textSize="18sp"
+            tools:layout_editor_absoluteX="266dp"
+            tools:layout_editor_absoluteY="72dp" />
+
+        <TextView
+            android:id="@+id/usernameTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Gebruikersnaam"
+            android:textSize="18sp" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/code"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:visibility="invisible">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Genereer een code:"
+            android:textSize="18sp" />
+
+        <TextView
+            android:id="@+id/generatedCode"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:textSize="18sp" />
+
+        <ImageView
+            android:id="@+id/generateButton"
+            android:layout_width="54dp"
+            android:layout_height="22dp"
+            android:onClick="generateCode"
+            app:srcCompat="@drawable/couple" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/textView15"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <LinearLayout
+        android:id="@+id/fillUsername"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:visibility="invisible">
+
+        <TextView
+            android:layout_width="87dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Vul de gebruikersnaam van je kind in:"
+            android:textSize="18sp" />
+
+        <AutoCompleteTextView
+            android:id="@+id/autoCompleteTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:completionHint="Username"
+            tools:layout_editor_absoluteX="69dp"
+            tools:layout_editor_absoluteY="160dp" />
+
+        <TextView
+            android:id="@+id/searchUser"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Zoek"
+            android:textSize="24sp" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/fillCode"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:visibility="invisible">
+
+        <TextView
+            android:id="@+id/textView9"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Vul de code in"
+            android:textSize="18sp" />
+
+        <AutoCompleteTextView
+            android:id="@+id/autoCompleteTextView2"
+            android:layout_width="182dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:completionHint="code" />
+    </LinearLayout>
+
+</LinearLayout>

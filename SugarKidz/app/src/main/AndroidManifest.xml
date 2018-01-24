@@ -27,7 +27,8 @@
         <activity android:name=".PokeshopActivity" />
         <activity android:name=".MyGardenActivity" />
         <activity android:name=".RegisterActivity" />
-        <activity android:name=".LogbookActivity"></activity>
+        <activity android:name=".LogbookActivity" />
+        <activity android:name=".CoupleActivity"></activity>
     </application>
 
 </manifest>

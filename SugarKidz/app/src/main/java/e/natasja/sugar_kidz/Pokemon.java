@@ -10,10 +10,14 @@ public class Pokemon {
     // properties of the class
     public String name;
     public String price;
-    public Bitmap sprite;
+    public String sprite;
+
+
+    // constructor for firebase
+    public Pokemon() {};
 
     // constructor of the class
-    public Pokemon(String aName, String aPrice, Bitmap aSprite) {
+    public Pokemon(String aName, String aPrice, String aSprite) {
         this.name = aName;
         this.price = aPrice;
         this.sprite = aSprite;

@@ -17,13 +17,21 @@
         android:textStyle="italic" />
 
     <TextView
-        android:id="@+id/backToMain"
+        android:id="@+id/navigate"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:onClick="goToMain"
         android:text="Terug naar hoofdscherm"
         android:textAlignment="textEnd"
-        android:onClick="goToMain"
         android:textColor="@color/colorAccent"
+        android:textStyle="italic" />
+
+    <TextView
+        android:id="@+id/parentLogout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Logout"
+        android:textSize="18sp"
         android:textStyle="italic" />
 
     <ListView

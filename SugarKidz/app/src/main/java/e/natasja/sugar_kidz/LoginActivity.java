@@ -43,8 +43,33 @@ public class LoginActivity extends AppCompatActivity {
         FirebaseUser currentUser = mAuth.getCurrentUser();
 
         if (currentUser != null) {
-            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-            startActivity(intent);
+            String uid = currentUser.getUid();
+            DatabaseReference mDatabaseRef = FirebaseDatabase.getInstance().getReference("users/"  + uid);
+
+            mDatabaseRef.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    // This method is called once with the initial value and again
+                    // whenever data at this location is updated.
+                    isParent = (boolean) dataSnapshot.child("isParent").getValue();
+                    Log.d(TAG, "Value is: " + isParent);
+
+                    if (isParent) {
+                        Intent toParentUI = new Intent(LoginActivity.this, LogbookActivity.class);
+                        finish();
+                        startActivity(toParentUI);
+                    } else {
+                        Intent toKidUI = new Intent(LoginActivity.this, MainActivity.class);
+                        finish();
+                        startActivity(toKidUI);
+                    }
+                }
+                @Override
+                public void onCancelled(DatabaseError error) {
+                    // Failed to read value
+                    Log.w(TAG, "Failed to read value.", error.toException());
+                }
+            });
         }
     }
 

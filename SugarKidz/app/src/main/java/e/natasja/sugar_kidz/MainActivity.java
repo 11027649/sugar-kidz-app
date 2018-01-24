@@ -9,6 +9,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.GestureDetector;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -48,10 +50,13 @@ public class MainActivity extends AppCompatActivity {
     SimpleDateFormat dateSDF;
     Calendar myCalendar;
 
+    String userID;
+
     private FirebaseAuth mAuth;
     private FirebaseDatabase mDatabase;
+    private DatabaseReference mDatabaseRef;
 
-    private GestureDetectorCompat gestureObject;
+    Boolean isParent;
 
     private static final String TAG = "MainActivity";
 
@@ -65,19 +70,91 @@ public class MainActivity extends AppCompatActivity {
 
         if (mAuth.getCurrentUser() == null) {
             Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+            finish();
+            startActivity(intent);
+        } else {
+            userID = mAuth.getCurrentUser().getUid();
+            mDatabaseRef = FirebaseDatabase.getInstance().getReference("users/" + userID);
+
+            mDatabaseRef.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    // This method is called once with the initial value and again
+                    // whenever data at this location is updated.
+                    isParent = (boolean) dataSnapshot.child("isParent").getValue();
+                    Log.d(TAG, "Value is: " + isParent);
+
+                    if (isParent) {
+                        Intent unauthorized = new Intent(MainActivity.this, LogbookActivity.class);
+                        finish();
+                        startActivity(unauthorized);
+                    }
+                }
+                @Override
+                public void onCancelled(DatabaseError error) {
+                    // Failed to read value
+                    Log.w(TAG, "Failed to read value.", error.toException());
+                }
+            });
         }
 
-        gestureObject = new GestureDetectorCompat(this, new LearnGesture());
+
+
         setDate();
 
         populateLogbook(dateToday);
 
         Spinner moments = findViewById(R.id.labelMeasurement);
-        ArrayAdapter<CharSequence> momentsAdapter = ArrayAdapter.createFromResource(this, R.array.moments, android.R.layout.simple_dropdown_item_1line);
+        ArrayAdapter<CharSequence> momentsAdapter = ArrayAdapter.createFromResource(
+                this,
+                R.array.moments,
+                android.R.layout.simple_dropdown_item_1line);
+
         momentsAdapter.setDropDownViewResource(android.R.layout.simple_dropdown_item_1line);
         moments.setAdapter(momentsAdapter);
 
    }
+
+   @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+
+        switch(id){
+            case (R.id.menu_couple):
+                Intent toCouple = new Intent(this, CoupleActivity.class);
+                finish();
+                startActivity(toCouple);
+                break;
+
+            case (R.id.menu_garden):
+                Intent toGarden = new Intent(this, MyGardenActivity.class);
+                finish();
+                startActivity(toGarden);
+                break;
+
+            case (R.id.menu_logout):
+                FirebaseAuth.getInstance().signOut();
+                Intent logout = new Intent(this, LoginActivity.class);
+                finish();
+                startActivity(logout);
+                break;
+
+            case (R.id.menu_pokeshop):
+                Intent toPokeshop = new Intent(MainActivity.this, PokeshopActivity.class);
+                finish();
+                startActivity(toPokeshop);
+                break;
+        }
+
+
+        return super.onOptionsItemSelected(item);
+    }
 
     public void setDate() {
         date = findViewById(R.id.date);
@@ -143,19 +220,6 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        this.gestureObject.onTouchEvent(event);
-        return super.onTouchEvent(event);
-    }
-
-    public void logout(View view) {
-        FirebaseAuth.getInstance().signOut();
-        Intent logout = new Intent(this, LoginActivity.class);
-        finish();
-        startActivity(logout);
-    }
-
     public void datePicker(View view) {
         myCalendar = Calendar.getInstance();
 
@@ -191,7 +255,8 @@ public class MainActivity extends AppCompatActivity {
         mTimePicker = new TimePickerDialog(MainActivity.this, new TimePickerDialog.OnTimeSetListener() {
             @Override
             public void onTimeSet(TimePicker timePicker, int selectedHour, int selectedMinute) {
-                time.setText(selectedHour + ":" + selectedMinute);
+                String timeString = selectedHour + ":" + selectedMinute;
+                time.setText(timeString);
             }
         }, hour, minute, true);
 
@@ -266,25 +331,6 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent(this, LogbookActivity.class);
         finish();
         startActivity(intent);
-    }
-
-    class LearnGesture extends GestureDetector.SimpleOnGestureListener {
-
-        @Override
-        public boolean onFling(MotionEvent event1, MotionEvent event2,
-                               float velocityX, float velocityY) {
-
-            if (event2.getX() > event1.getX()) {
-                // this will listen to swipes from left to right
-                Intent intent = new Intent(MainActivity.this, PokeshopActivity.class);
-                finish();
-                startActivity(intent);
-            } else {
-                // same in opposite direction
-            }
-
-            return true;
-        }
     }
 
 }

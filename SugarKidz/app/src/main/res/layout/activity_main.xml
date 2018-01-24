@@ -8,16 +8,6 @@
     tools:context="e.natasja.sugar_kidz.MainActivity">
 
     <TextView
-        android:id="@+id/logout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:onClick="logout"
-        android:text="@string/Uitloggen"
-        android:textAlignment="textEnd"
-        android:textColor="@color/colorAccent"
-        android:textStyle="italic" />
-
-    <TextView
         android:id="@+id/SugarKidz"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

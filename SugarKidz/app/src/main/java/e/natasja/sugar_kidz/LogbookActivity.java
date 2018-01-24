@@ -28,6 +28,8 @@ public class LogbookActivity extends AppCompatActivity {
     private static final String TAG = "LogbookActivity";
     private TotalLogbookAdapter mAdapter;
 
+    String userID;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -35,7 +37,8 @@ public class LogbookActivity extends AppCompatActivity {
 
         FirebaseAuth mAuth = FirebaseAuth.getInstance();
         FirebaseUser aUser = mAuth.getCurrentUser();
-        String userID = aUser.getUid();
+
+        userID = aUser.getUid();
 
         DatabaseReference myRef = FirebaseDatabase.getInstance().getReference("users/" + userID);
 
@@ -65,30 +68,34 @@ public class LogbookActivity extends AppCompatActivity {
     }
 
     public void doKidStuff() {
-        // set back button visible and enable navigation
-        TextView backbutton = findViewById(R.id.backToMain);
-        backbutton.setVisibility(View.VISIBLE);
+        TextView backbutton = findViewById(R.id.navigate);
+        backbutton.setText("Terug naar hoofdscherm");
+
+        TextView logoutParent = findViewById(R.id.parentLogout);
+        logoutParent.setVisibility(View.INVISIBLE);
 
         // populate listview
-        populateListView();
+        populateListView(userID);
     }
 
     public void doParentStuff() {
         // set back button invisible and disable navigation
-        TextView backbutton = findViewById(R.id.backToMain);
-        backbutton.setVisibility(View.INVISIBLE);
+        TextView backbutton = findViewById(R.id.navigate);
+        backbutton.setText("Nog geen account gekoppeld. Klik hier om een account te koppelen.");
+
+        TextView logoutParent = findViewById(R.id.parentLogout);
+        logoutParent.setVisibility(View.VISIBLE);
 
         // only populate listview if account is coupled
+
     }
 
-    public void populateListView() {
+    public void populateListView(String uid) {
         mAdapter = new TotalLogbookAdapter(this);
 
-        FirebaseAuth mAuth = FirebaseAuth.getInstance();
         FirebaseDatabase mDatabase = FirebaseDatabase.getInstance();
 
-        final FirebaseUser user = mAuth.getCurrentUser();
-        final DatabaseReference mDatabaseRef = mDatabase.getReference("users/" + user.getUid() + "/Measurements");
+        final DatabaseReference mDatabaseRef = mDatabase.getReference("users/" + uid + "/Measurements");
 
         mDatabaseRef.addValueEventListener(new ValueEventListener() {
             @Override
@@ -135,7 +142,9 @@ public class LogbookActivity extends AppCompatActivity {
 
     public void goToMain(View view) {
         if (isParent) {
-            Log.w(TAG, "Tapped on invisible backbutton");
+            Intent toLogbook = new Intent(this, CoupleActivity.class);
+            finish();
+            startActivity(toLogbook);
         } else {
             // if not a parent, go back
             Intent intent = new Intent(this, MainActivity.class);

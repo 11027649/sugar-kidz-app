@@ -107,6 +107,7 @@ public class RegisterActivity extends AppCompatActivity {
                             if (parent.isChecked()) {
                                 aUser = new User(username, true,null);
                                 mRef.child("users").child(userId).setValue(aUser);
+                                mRef.child("users").child(userId).child("coupled").setValue(false);
 
                                 Intent intent = new Intent(getApplicationContext(), LogbookActivity.class);
                                 finish();
