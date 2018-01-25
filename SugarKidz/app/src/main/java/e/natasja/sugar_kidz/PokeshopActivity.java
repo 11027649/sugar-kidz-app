@@ -78,8 +78,6 @@ public class PokeshopActivity extends AppCompatActivity {
         pokemons = new ArrayList<>();
 
         showXPAMount();
-
-
         showPokemons();
 
         // instantiate a serial requestqueue
