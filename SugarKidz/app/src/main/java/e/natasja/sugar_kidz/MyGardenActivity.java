@@ -27,9 +27,10 @@ public class MyGardenActivity extends AppCompatActivity {
 
     private static final String TAG = "GardenActivity.java";
     FirebaseAuth mAuth;
+    FirebaseUser user;
+
     FirebaseDatabase mDatabase;
     DatabaseReference mRef;
-    FirebaseUser user;
 
     String uid;
 
@@ -39,18 +40,20 @@ public class MyGardenActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_my_garden);
-        setUIOptions();
 
         mAuth = FirebaseAuth.getInstance();
-
         user = mAuth.getCurrentUser();
 
         if (user != null) {
             uid = user.getUid();
+            mDatabase = FirebaseDatabase.getInstance();
+        } else {
+            Intent notLoggedIn = new Intent (this, LoginActivity.class);
+            finish();
+            startActivity(notLoggedIn);
         }
 
-        mDatabase = FirebaseDatabase.getInstance();
-
+        setUIOptions();
         findOwnedPokemon();
         findViewsAndMakeClickable();
 
@@ -63,32 +66,71 @@ public class MyGardenActivity extends AppCompatActivity {
         pokemon4 = findViewById(R.id.pokemon4);
         pokemon5 = findViewById(R.id.pokemon5);
 
-        clickOn(pokemon1);
-        clickOn(pokemon2);
-        clickOn(pokemon3);
-        clickOn(pokemon4);
-        clickOn(pokemon5);
+        // set displayed pokemons to imageviews
+        mRef = mDatabase.getReference("users/" + uid + "/displayedPokemons");
+        mRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Iterator<DataSnapshot> mIterator = dataSnapshot.getChildren().iterator();
+
+                while (mIterator.hasNext()) {
+                    DataSnapshot display = mIterator.next();
+
+                    int whatImageView = Integer.valueOf(display.getKey());
+                    int pokemonToDisplay2 = Integer.valueOf(String.valueOf(display.getValue()));
+
+                    if (whatImageView == 1) {
+                        findSprite(pokemonToDisplay2, pokemon1);
+                    } else if (whatImageView == 2){
+                        findSprite(pokemonToDisplay2, pokemon2);
+                    } else if (whatImageView == 3) {
+                        findSprite(pokemonToDisplay2, pokemon3);
+                    } else if (whatImageView == 4) {
+                        findSprite(pokemonToDisplay2, pokemon4);
+                    } else {
+                        findSprite(pokemonToDisplay2, pokemon5);
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.w(TAG, "Failed to read data from database.");
+            }
+        });
+
+
+        clickOn(pokemon1, 1);
+        clickOn(pokemon2, 2);
+        clickOn(pokemon3, 3);
+        clickOn(pokemon4, 4);
+        clickOn(pokemon5, 5);
 
         pokemon2.setAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.flying));
     }
 
-    public void clickOn(final ImageView pokemon) {
+    public void clickOn(final ImageView pokemon, final int whatPokemon) {
         pokemon.setClickable(true);
+
         pokemon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
-
                 Log.d(TAG, "current after click" + String.valueOf(currentPokemon));
-                currentPokemon = currentPokemon + 1;
 
                 if (currentPokemon >= ownedPokemon.size()) {
                     currentPokemon = currentPokemon % ownedPokemon.size();
                 }
 
-                Log.d(TAG, String.valueOf(ownedPokemon.get(currentPokemon)));
+                int pokemonToDisplay = ownedPokemon.get(currentPokemon);
+                currentPokemon = currentPokemon + 1;
 
-                findSprite(ownedPokemon.get(currentPokemon), pokemon);
+                // save the displayed pokemon in firebase
+                mRef = FirebaseDatabase.getInstance().getReference("users/" + uid);
+                mRef.child("displayedPokemons").child(String.valueOf(whatPokemon)).setValue(pokemonToDisplay);
+
+                // find sprite that belongs to this pokemon and display it
+                findSprite(pokemonToDisplay, pokemon);
             }
         });
     }

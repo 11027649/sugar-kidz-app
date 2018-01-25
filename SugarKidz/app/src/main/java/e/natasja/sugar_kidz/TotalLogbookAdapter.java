@@ -42,6 +42,10 @@ public class TotalLogbookAdapter extends BaseAdapter {
         notifyDataSetChanged();
     }
 
+    public void removeAllItems() {
+        measurements.clear();
+    }
+
     @Override
     public int getItemViewType(int position) {
         return sectionHeader.contains(position) ? TYPE_SEPARATOR : TYPE_ITEM;
@@ -116,17 +120,19 @@ public class TotalLogbookAdapter extends BaseAdapter {
             }
         }
 
+        Log.d("TOTAL LOGBOOK", "daar");
+
         if (isHeader) {
+            Log.d("TOTAL LOGBOOK", "hier");
             hHolder.holderTextView.setText(measurements.get(position).labelMeasurement);
         } else {
             if (mHolder != null) {
+                Log.d("TOTAL LOGBOOK", "Boe ik ben in mholder != null");
                 mHolder.labelTextView.setText(measurements.get(position).labelMeasurement);
                 mHolder.heightTextView.setText(measurements.get(position).heightMeasurement);
                 mHolder.timeTextView.setText(measurements.get(position).timeMeasurement);
             }
         }
-
-
         return convertView;
     }
 

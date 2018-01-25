@@ -2,7 +2,7 @@
 <resources>
     <color name="transparent">#00b53f3f</color>
     <color name="whiteglow">#38ffffff</color>
-    <color name="colorPrimary">#00cc99</color>
-    <color name="colorPrimaryDark">#00b789</color>
+    <color name="colorPrimary">#00926d</color>
+    <color name="colorPrimaryDark">#007356</color>
     <color name="colorAccent">#dd1f7d</color>
 </resources>

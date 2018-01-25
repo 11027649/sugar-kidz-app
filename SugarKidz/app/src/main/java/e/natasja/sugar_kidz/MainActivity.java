@@ -76,7 +76,7 @@ public class MainActivity extends AppCompatActivity {
             userID = mAuth.getCurrentUser().getUid();
             mDatabaseRef = FirebaseDatabase.getInstance().getReference("users/" + userID);
 
-            mDatabaseRef.addValueEventListener(new ValueEventListener() {
+            mDatabaseRef.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     // This method is called once with the initial value and again

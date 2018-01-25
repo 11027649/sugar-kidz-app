@@ -17,6 +17,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.Iterator;
@@ -28,6 +29,9 @@ public class LogbookActivity extends AppCompatActivity {
     private TotalLogbookAdapter mAdapter;
 
     String userID;
+    String kidID;
+
+    Boolean notificationNeeded;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,10 +43,12 @@ public class LogbookActivity extends AppCompatActivity {
 
         userID = aUser.getUid();
 
+        notificationNeeded = false;
+
         DatabaseReference myRef = FirebaseDatabase.getInstance().getReference("users/" + userID);
 
         // check if the person that comes here is a parent or a kid
-        myRef.addValueEventListener(new ValueEventListener() {
+        myRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 // This method is called once with the initial value and again
@@ -55,7 +61,6 @@ public class LogbookActivity extends AppCompatActivity {
                 } else {
                     doKidStuff();
                 }
-
             }
             @Override
             public void onCancelled(DatabaseError error) {
@@ -95,7 +100,8 @@ public class LogbookActivity extends AppCompatActivity {
         TextView logoutParent = findViewById(R.id.parentLogout);
         logoutParent.setVisibility(View.VISIBLE);
 
-        populateListView(kidID);
+        DatabaseReference mRef = FirebaseDatabase.getInstance().getReference("users/" + kidID + "/Measurements");
+        mRef.addValueEventListener(kidAddsMeasurementListener);
     }
 
     public void sendNotification() {
@@ -128,9 +134,10 @@ public class LogbookActivity extends AppCompatActivity {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 String coupledTo = String.valueOf(dataSnapshot.getValue());
-                if (coupledTo.equals("null")){
+                if (coupledTo.equals("false")){
                     setUncoupledParentUI();
                 } else {
+                    kidID = coupledTo;
                     setCoupledParentUI(coupledTo);
                 }
             }
@@ -147,14 +154,13 @@ public class LogbookActivity extends AppCompatActivity {
         FirebaseDatabase mDatabase = FirebaseDatabase.getInstance();
 
         final DatabaseReference mDatabaseRef = mDatabase.getReference("users/" + uid + "/Measurements");
+        Query myTopSolvedQuery = mDatabaseRef.orderByChild("Measurements");
 
-        mDatabaseRef.addListenerForSingleValueEvent(new ValueEventListener() {
+        myTopSolvedQuery.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange (DataSnapshot dataSnapshot) {
                // iterate over dates
                 Iterator<DataSnapshot> dateIterator = dataSnapshot.getChildren().iterator();
-
-                sendNotification();
 
                 while (dateIterator.hasNext()) {
                     DataSnapshot measurements = dateIterator.next();
@@ -182,6 +188,10 @@ public class LogbookActivity extends AppCompatActivity {
                     }
                 }
 
+                if (isParent) {
+                    notificationNeeded = true;
+                }
+
                 ListView mListView = findViewById(R.id.totalLogbookListView);
                 mListView.setAdapter(mAdapter);
             }
@@ -192,6 +202,21 @@ public class LogbookActivity extends AppCompatActivity {
             }
         });
     }
+
+    public ValueEventListener kidAddsMeasurementListener = new ValueEventListener() {
+        @Override
+        public void onDataChange(DataSnapshot dataSnapshot) {
+            if (notificationNeeded) {
+                mAdapter.removeAllItems();
+                sendNotification();
+            }
+            populateListView(kidID);
+        }
+        @Override
+        public void onCancelled(DatabaseError databaseError) {
+            Log.w(TAG, "Failed to read value.");
+        }
+    };
 
     public void goToMain(View view) {
         if (isParent) {

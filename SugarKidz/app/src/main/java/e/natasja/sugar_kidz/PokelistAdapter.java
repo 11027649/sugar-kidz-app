@@ -6,6 +6,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.util.Base64;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,8 +17,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 
@@ -26,6 +30,12 @@ import java.util.ArrayList;
  */
 
 public class PokelistAdapter extends ArrayAdapter {
+    Button buy;
+    int pokemonNumber;
+    TextView pokemonPrice;
+
+    String uid;
+
     public PokelistAdapter(Context context, ArrayList<Pokemon> pokemons) {
         super(context, 0, pokemons);
     }
@@ -40,11 +50,9 @@ public class PokelistAdapter extends ArrayAdapter {
             view = LayoutInflater.from(getContext()).inflate(R.layout.row_shoplist, parent, false);
         }
 
-        final Button buy = view.findViewById(R.id.buy);
-        buy.setText(position + "Koop mij!");
         ImageView pokemonImage = view.findViewById(R.id.imageviewPokemon);
         TextView pokemonName = view.findViewById(R.id.name);
-        TextView pokemonPrice = view.findViewById(R.id.cost);
+        pokemonPrice = view.findViewById(R.id.cost);
 
         pokemonPrice.setTextColor(Color.BLACK);
         pokemonName.setTextColor(Color.BLACK);
@@ -57,19 +65,56 @@ public class PokelistAdapter extends ArrayAdapter {
         Bitmap pokemonSprite = getBitmap(pokemon.sprite);
         pokemonImage.setImageBitmap(pokemonSprite);
 
-        final String pokemonNumber = String.valueOf(position + 1);
+        // the pokemons start at 1, and position at 0, so the clicked pokemon's number is position + 1
+        pokemonNumber = position + 1;
 
-        buy.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                Toast.makeText(getContext(), "You clicked on me!", Toast.LENGTH_SHORT).show();
-                buy.setText("Gekocht");
-
-                addPokemon(pokemonNumber);
-            }
-        });
+        buy = view.findViewById(R.id.buy);
+        buy.setText("Koop mij!");
+        buy.setOnClickListener(buyListener);
 
         return view;
     }
+
+    private View.OnClickListener buyListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            buy.setText("Gekocht");
+
+            addPokemon(String.valueOf(pokemonNumber));
+            payForPokemon(pokemonPrice.getText().toString());
+        }
+    };
+
+    private void payForPokemon(String price) {
+        uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        DatabaseReference mRef = FirebaseDatabase.getInstance().getReference("users/" + uid);
+
+        mRef.addListenerForSingleValueEvent(payListener);
+
+    }
+
+    private ValueEventListener payListener = new ValueEventListener() {
+        @Override
+        public void onDataChange(DataSnapshot dataSnapshot) {
+            String xpAmount = (dataSnapshot.child("xpAmount").getValue().toString());
+            int XP = Integer.valueOf(xpAmount);
+
+            if (XP > 1000) {
+                int newXP = XP - 1000;
+                FirebaseDatabase.getInstance().getReference("users/" + uid + "/xpAmount").setValue(newXP);
+            } else {
+                Toast.makeText(getContext(), "Je hebt niet genoeg XP om deze pokemon te kopen.", Toast.LENGTH_SHORT).show();
+            }
+
+        }
+
+        @Override
+        public void onCancelled(DatabaseError databaseError) {
+            Log.w("PokelistAdapter", "Failed to read data from database.");
+        }
+    };
+
+
 
     public void addPokemon(String position) {
         FirebaseAuth mAuth = FirebaseAuth.getInstance();
@@ -80,11 +125,7 @@ public class PokelistAdapter extends ArrayAdapter {
     }
 
     public static Bitmap getBitmap(String photo) {
-
         byte[] decodedString = Base64.decode(photo, Base64.DEFAULT);
-        Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
-
-        return decodedByte;
-
+        return BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
     }
 }

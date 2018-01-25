@@ -40,6 +40,7 @@ public class LogbookAdapter extends ArrayAdapter {
         labelTextView.setText(measurement.labelMeasurement);
         heightTextView.setText(measurement.heightMeasurement);
 
+
         return view;
     }
 }

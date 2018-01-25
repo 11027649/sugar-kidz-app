@@ -46,7 +46,7 @@ public class LoginActivity extends AppCompatActivity {
             String uid = currentUser.getUid();
             DatabaseReference mDatabaseRef = FirebaseDatabase.getInstance().getReference("users/"  + uid);
 
-            mDatabaseRef.addValueEventListener(new ValueEventListener() {
+            mDatabaseRef.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     // This method is called once with the initial value and again
@@ -137,7 +137,6 @@ public class LoginActivity extends AppCompatActivity {
 
     public void toRegisterActivity(View view) {
         Intent intent = new Intent(this, RegisterActivity.class);
-        finish();
         startActivity(intent);
     }
 }
