@@ -33,9 +33,10 @@
 
         <Button
             android:id="@+id/buy"
-            android:layout_width="186dp"
+            android:layout_width="171dp"
             android:layout_height="wrap_content"
             android:layout_gravity="end"
+            android:layout_weight="1"
             android:text="Koop mij!" />
 
     </LinearLayout>

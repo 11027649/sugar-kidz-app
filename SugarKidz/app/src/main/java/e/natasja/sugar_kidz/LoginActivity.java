@@ -77,7 +77,7 @@ public class LoginActivity extends AppCompatActivity {
         String userID = mAuth.getCurrentUser().getUid();
         DatabaseReference myRef = FirebaseDatabase.getInstance().getReference("users/" + userID);
 
-        myRef.addValueEventListener(new ValueEventListener() {
+        myRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 // This method is called once with the initial value and again
@@ -85,6 +85,16 @@ public class LoginActivity extends AppCompatActivity {
                 isParent = (boolean) dataSnapshot.child("isParent").getValue();
                 Log.d(TAG, "Value is: " + isParent);
 
+                // sign in succes, update UI with the signed-in user's information
+                if (isParent) {
+                    Intent intent = new Intent(getApplicationContext(), LogbookActivity.class);
+                    finish();
+                    startActivity(intent);
+                } else {
+                    Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                    finish();
+                    startActivity(intent);
+                }
             }
             @Override
             public void onCancelled(DatabaseError error) {
@@ -115,17 +125,7 @@ public class LoginActivity extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
-
                             checkIfParent();
-
-                            // sign in succes, update UI with the signed-in user's information
-                            if (isParent) {
-                                Intent intent = new Intent(getApplicationContext(), LogbookActivity.class);
-                                startActivity(intent);
-                            } else {
-                                Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-                                startActivity(intent);
-                            }
                         } else {
                             Log.w(TAG, "signInWithEmail:failure", task.getException());
                             Toast.makeText(LoginActivity.this, "Email and password don't " +
@@ -137,6 +137,7 @@ public class LoginActivity extends AppCompatActivity {
 
     public void toRegisterActivity(View view) {
         Intent intent = new Intent(this, RegisterActivity.class);
+        finish();
         startActivity(intent);
     }
 }

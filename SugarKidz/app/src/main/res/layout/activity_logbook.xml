@@ -32,7 +32,8 @@
         android:layout_height="wrap_content"
         android:text="Logout"
         android:textSize="18sp"
-        android:textStyle="italic" />
+        android:textStyle="italic"
+        android:onClick="logout"/>
 
     <ListView
         android:id="@+id/totalLogbookListView"

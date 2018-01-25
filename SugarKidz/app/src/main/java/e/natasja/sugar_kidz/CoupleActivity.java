@@ -7,8 +7,10 @@ import android.os.Bundle;
 import android.text.Layout;
 import android.util.Log;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -19,6 +21,7 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.math.BigInteger;
 import java.security.SecureRandom;
+import java.util.Iterator;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -34,6 +37,7 @@ public class CoupleActivity extends AppCompatActivity {
     TextView generatedCodeTextView;
 
     public String userID;
+    public String kidID;
 
     Boolean isParent;
 
@@ -87,7 +91,6 @@ public class CoupleActivity extends AppCompatActivity {
 
     public void setParentUI() {
         usernameFillLayout.setVisibility(View.VISIBLE);
-        codeFillLayout.setVisibility(View.VISIBLE);
     }
 
     public void setKidUI(String username) {
@@ -144,5 +147,86 @@ public class CoupleActivity extends AppCompatActivity {
             finish();
             startActivity(intent2);
         }
+    }
+
+    public void searchToUser(View view) {
+        final EditText usernameEditText = findViewById(R.id.usernameEditText);
+        final String usernameToSearch = usernameEditText.getText().toString();
+
+        mDatabaseRef = FirebaseDatabase.getInstance().getReference("users/");
+
+        mDatabaseRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Iterator<DataSnapshot> mIterator = dataSnapshot.getChildren().iterator();
+                Log.d(TAG, String.valueOf(dataSnapshot.getChildrenCount()));
+
+                Boolean foundKid = false;
+
+                while (mIterator.hasNext()) {
+                    DataSnapshot user = mIterator.next();
+
+                    kidID = user.getKey();
+                    String usernameSearch = user.child("username").getValue().toString();
+
+                    if (usernameSearch.equals(usernameToSearch)) {
+                        Toast.makeText(getApplicationContext(), "Gebruiker gevonden!" + kidID, Toast.LENGTH_SHORT).show();
+                        foundKid = true;
+                        codeFillLayout.setVisibility(View.VISIBLE);
+
+                        break;
+                    }
+                }
+
+                if (!foundKid) {
+                    Toast.makeText(getApplicationContext(), "Gebruiker niet gevonden!", Toast.LENGTH_SHORT).show();
+                }
+            }
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.w(TAG, "Failed to read data.");
+            }
+        });
+    }
+
+    public void couple(View view) {
+        if (isParent) {
+            EditText codeEditText = findViewById(R.id.codeEditText);
+            String code = codeEditText.getText().toString();
+
+            if (code.length() == 0) {
+                Toast.makeText(getApplicationContext(), "Vraag de koppelcode aan je kind.", Toast.LENGTH_SHORT).show();
+            } else if (code.length() < 8) {
+                Toast.makeText(getApplicationContext(), "De code moet 8 cijfers zijn.", Toast.LENGTH_SHORT).show();
+            } else {
+                checkCoupleCode(code);
+            }
+        }
+    }
+
+    public void checkCoupleCode(final String code) {
+        mDatabaseRef = FirebaseDatabase.getInstance().getReference("users/" + kidID + "/couple code");
+
+        mDatabaseRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                String codeToCheckWith = String.valueOf(dataSnapshot.getValue());
+
+                if (code.equals(codeToCheckWith) && (!codeToCheckWith.equals("null"))) {
+                    Toast.makeText(CoupleActivity.this, "Je hebt je account succesvol gekoppeld!", Toast.LENGTH_SHORT).show();
+
+                    mDatabaseRef = FirebaseDatabase.getInstance().getReference("users/" + userID + "/coupled");
+                    mDatabaseRef.setValue(kidID);
+                } else {
+                    Toast.makeText(CoupleActivity.this, "De code klopt niet of kan niet worden gevonden. ", Toast.LENGTH_SHORT).show();
+                }
+
+            }
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.w(TAG, "Failed to read value from database.");
+            }
+        });
+
     }
 }

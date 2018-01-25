@@ -13,6 +13,11 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.ArrayList;
 
@@ -35,13 +40,8 @@ public class PokelistAdapter extends ArrayAdapter {
             view = LayoutInflater.from(getContext()).inflate(R.layout.row_shoplist, parent, false);
         }
 
-        Button buy = (Button) row.findViewById(R.id.buy);
-        buy.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                //...
-            }
-        });
-
+        final Button buy = view.findViewById(R.id.buy);
+        buy.setText(position + "Koop mij!");
         ImageView pokemonImage = view.findViewById(R.id.imageviewPokemon);
         TextView pokemonName = view.findViewById(R.id.name);
         TextView pokemonPrice = view.findViewById(R.id.cost);
@@ -55,13 +55,31 @@ public class PokelistAdapter extends ArrayAdapter {
         pokemonName.setText(pokemonNameText);
 
         Bitmap pokemonSprite = getBitmap(pokemon.sprite);
-
         pokemonImage.setImageBitmap(pokemonSprite);
+
+        final String pokemonNumber = String.valueOf(position + 1);
+
+        buy.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                Toast.makeText(getContext(), "You clicked on me!", Toast.LENGTH_SHORT).show();
+                buy.setText("Gekocht");
+
+                addPokemon(pokemonNumber);
+            }
+        });
 
         return view;
     }
 
-    public Bitmap getBitmap(String photo) {
+    public void addPokemon(String position) {
+        FirebaseAuth mAuth = FirebaseAuth.getInstance();
+        String uid = mAuth.getCurrentUser().getUid();
+        DatabaseReference mRef = FirebaseDatabase.getInstance().getReference("users/" + uid);
+
+        mRef.child("Pokemons").child(position).setValue(true);
+    }
+
+    public static Bitmap getBitmap(String photo) {
 
         byte[] decodedString = Base64.decode(photo, Base64.DEFAULT);
         Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);

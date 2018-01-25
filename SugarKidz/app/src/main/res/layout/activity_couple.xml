@@ -88,19 +88,18 @@
     <LinearLayout
         android:id="@+id/fillUsername"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="83dp"
         android:orientation="horizontal"
         android:visibility="invisible">
 
         <TextView
-            android:layout_width="87dp"
+            android:layout_width="205dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
             android:text="Vul de gebruikersnaam van je kind in:"
             android:textSize="18sp" />
 
         <AutoCompleteTextView
-            android:id="@+id/autoCompleteTextView"
+            android:id="@+id/usernameEditText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -112,7 +111,8 @@
             android:id="@+id/searchUser"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Zoek"
+            android:text="Zoek!"
+            android:onClick="searchToUser"
             android:textSize="24sp" />
 
     </LinearLayout>
@@ -133,11 +133,19 @@
             android:textSize="18sp" />
 
         <AutoCompleteTextView
-            android:id="@+id/autoCompleteTextView2"
+            android:id="@+id/codeEditText"
             android:layout_width="182dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:completionHint="code" />
+
+        <TextView
+            android:id="@+id/coupleButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="couple"
+            android:text="Koppel!"
+            android:textSize="24sp" />
     </LinearLayout>
 
 </LinearLayout>

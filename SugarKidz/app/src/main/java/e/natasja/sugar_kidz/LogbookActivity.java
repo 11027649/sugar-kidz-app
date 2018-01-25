@@ -1,17 +1,16 @@
 package e.natasja.sugar_kidz;
 
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Intent;
-import android.support.annotation.NonNull;
+import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -43,7 +42,6 @@ public class LogbookActivity extends AppCompatActivity {
         DatabaseReference myRef = FirebaseDatabase.getInstance().getReference("users/" + userID);
 
         // check if the person that comes here is a parent or a kid
-        // this is the only activity in the app where they both can come
         myRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -53,7 +51,7 @@ public class LogbookActivity extends AppCompatActivity {
                 Log.d(TAG, "Value is: " + isParent);
 
                 if (isParent) {
-                    doParentStuff();
+                    checkIfCoupled();
                 } else {
                     doKidStuff();
                 }
@@ -78,16 +76,69 @@ public class LogbookActivity extends AppCompatActivity {
         populateListView(userID);
     }
 
-    public void doParentStuff() {
+    public void setUncoupledParentUI() {
         // set back button invisible and disable navigation
         TextView backbutton = findViewById(R.id.navigate);
-        backbutton.setText("Nog geen account gekoppeld. Klik hier om een account te koppelen.");
+        String backbuttonText = "Nog geen account gekoppeld. Klik hier om een account te koppelen.";
+        backbutton.setText(backbuttonText);
+
+        TextView logoutParent = findViewById(R.id.parentLogout);
+        logoutParent.setVisibility(View.VISIBLE);
+    }
+
+    public void setCoupledParentUI(String kidID) {
+        // set back button invisible and disable navigation
+        TextView backbutton = findViewById(R.id.navigate);
+        String backbuttonText = "Je account is gekoppeld aan: " + kidID;
+        backbutton.setText(backbuttonText);
 
         TextView logoutParent = findViewById(R.id.parentLogout);
         logoutParent.setVisibility(View.VISIBLE);
 
-        // only populate listview if account is coupled
+        populateListView(kidID);
+    }
 
+    public void sendNotification() {
+
+        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this, "Bae")
+                .setSmallIcon(R.drawable.meter3)
+                .setContentTitle("Nieuwe meting beschikbaar")
+                .setContentText("Je kind heeft een nieuwe meting toegevoegd!");
+
+        Intent resultIntent = new Intent(this, LogbookActivity.class);
+
+        PendingIntent resultPendingIntent =
+                PendingIntent.getActivity(
+                        this,
+                        0,
+                        resultIntent,
+                        PendingIntent.FLAG_UPDATE_CURRENT);
+
+        mBuilder.setContentIntent(resultPendingIntent);
+
+        int mNotificationId = 1;
+        NotificationManager mManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        mManager.notify(mNotificationId, mBuilder.build());
+    }
+
+    public void checkIfCoupled() {
+        DatabaseReference mRef = FirebaseDatabase.getInstance().getReference("users/" + userID + "/coupled");
+
+        mRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                String coupledTo = String.valueOf(dataSnapshot.getValue());
+                if (coupledTo.equals("null")){
+                    setUncoupledParentUI();
+                } else {
+                    setCoupledParentUI(coupledTo);
+                }
+            }
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.w(TAG, "Failed to read data from database.");
+            }
+        });
     }
 
     public void populateListView(String uid) {
@@ -97,11 +148,13 @@ public class LogbookActivity extends AppCompatActivity {
 
         final DatabaseReference mDatabaseRef = mDatabase.getReference("users/" + uid + "/Measurements");
 
-        mDatabaseRef.addValueEventListener(new ValueEventListener() {
+        mDatabaseRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange (DataSnapshot dataSnapshot) {
                // iterate over dates
                 Iterator<DataSnapshot> dateIterator = dataSnapshot.getChildren().iterator();
+
+                sendNotification();
 
                 while (dateIterator.hasNext()) {
                     DataSnapshot measurements = dateIterator.next();
@@ -135,22 +188,32 @@ public class LogbookActivity extends AppCompatActivity {
 
             @Override
             public void onCancelled(DatabaseError error) {
-                Log.w(TAG, "Failed to read value.", error.toException());
+                Log.w(TAG, "Failed to read value.");
             }
         });
     }
 
     public void goToMain(View view) {
         if (isParent) {
+            // if you're a parent, this is the couple button: so go to couple activity
             Intent toLogbook = new Intent(this, CoupleActivity.class);
             finish();
             startActivity(toLogbook);
         } else {
-            // if not a parent, go back
+            // if not a parent, go back to main
             Intent intent = new Intent(this, MainActivity.class);
             finish();
             startActivity(intent);
         }
+    }
 
+    public void logout(View view) {
+        if (isParent) {
+            FirebaseAuth mAuth = FirebaseAuth.getInstance();
+            mAuth.signOut();
+            Intent logoutParent = new Intent(this, LoginActivity.class);
+            finish();
+            startActivity(logoutParent);
+        }
     }
 }

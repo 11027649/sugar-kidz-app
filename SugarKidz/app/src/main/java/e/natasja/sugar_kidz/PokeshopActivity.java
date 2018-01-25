@@ -86,7 +86,7 @@ public class PokeshopActivity extends AppCompatActivity {
 //        serialRequestQueue = prepareSerialRequestQueue(getApplicationContext());
 //        serialRequestQueue.start();
 //
-//        for (int i = 14; i < 152; i++) {
+//        for (int i = 7; i < 9; i++) {
 //            PokemonRequest(i);
 //        }
     }
@@ -136,7 +136,7 @@ public class PokeshopActivity extends AppCompatActivity {
         DatabaseReference myRef = FirebaseDatabase.getInstance().getReference("users/" + userID + "/xpAmount");
 
         // Read from the database
-        myRef.addValueEventListener(new ValueEventListener() {
+        myRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 // This method is called once with the initial value and again
@@ -144,7 +144,7 @@ public class PokeshopActivity extends AppCompatActivity {
                 Long xpAmount = (Long) dataSnapshot.getValue();
 
                 Log.d(TAG, "Value is: " + xpAmount);
-                XPAmountTextView.setText(xpAmount.toString());
+                XPAmountTextView.setText(String.valueOf(xpAmount));
             }
 
             @Override

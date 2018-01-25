@@ -98,8 +98,6 @@ public class MainActivity extends AppCompatActivity {
             });
         }
 
-
-
         setDate();
 
         populateLogbook(dateToday);
@@ -151,8 +149,6 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(toPokeshop);
                 break;
         }
-
-
         return super.onOptionsItemSelected(item);
     }
 
@@ -191,17 +187,10 @@ public class MainActivity extends AppCompatActivity {
                     DataSnapshot measurement = iterator.next();
                     Log.d(TAG, String.valueOf(measurement.getChildrenCount()));
 
-
-                    Log.d(TAG, "Total Measurements: " + measurement);
-
-                    String timeMeasurement, labelMeasurement, heightMeasurement;
+                    String timeMeasurement;
 
                     timeMeasurement = measurement.getKey();
                     SimpleMeasurement simple = measurement.getValue(SimpleMeasurement.class);
-
-                    Log.d(TAG, "opgehaalde height" + simple.getHeight());
-                    Log.d(TAG, "Total Measurements: " + timeMeasurement);
-
                     Measurement newMeasurement = new Measurement(simple.getLabel(), "Today", timeMeasurement, simple.getHeight());
 
                     measurementArray.add(newMeasurement);
