@@ -36,6 +36,7 @@ import com.android.volley.toolbox.ImageRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -54,7 +55,13 @@ public class PokeshopActivity extends AppCompatActivity {
 
     RequestQueue serialRequestQueue;
     private static String TAG = "PokeshopActivity";
+
     ArrayList<Pokemon> pokemons;
+    ArrayList<Integer> ownedPokemons;
+
+    String uid;
+    FirebaseAuth mAuth;
+    DatabaseReference mRef;
 
     static int MAX_SERIAL_THREAD_POOL_SIZE = 1;
     static final int MAX_CACHE_SIZE = 2 * 1024 * 1024; //2 MB
@@ -64,10 +71,22 @@ public class PokeshopActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_pokeshop);
 
+        mAuth = FirebaseAuth.getInstance();
+        FirebaseUser aUser = mAuth.getCurrentUser();
+
+        if (aUser == null) {
+            Intent intent = new Intent(PokeshopActivity.this, MainActivity.class);
+            finish();
+            startActivity(intent);
+        } else {
+            uid = aUser.getUid();
+        }
+
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
 
         pokemons = new ArrayList<>();
+        ownedPokemons = new ArrayList<>();
 
         showXPAMount();
         showPokemons();
@@ -97,7 +116,7 @@ public class PokeshopActivity extends AppCompatActivity {
     }
 
     public void showPokemons() {
-        DatabaseReference mRef = FirebaseDatabase.getInstance().getReference("pokemons");
+        mRef = FirebaseDatabase.getInstance().getReference("pokemons");
 
         mRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -110,7 +129,8 @@ public class PokeshopActivity extends AppCompatActivity {
                     DataSnapshot datasnap = mIterator.next();
                     Pokemon pokemon = datasnap.getValue(Pokemon.class);
                     pokemons.add(pokemon);
-                    updateList();
+
+                    checkIfOwned();
                 }
             }
 
@@ -120,6 +140,32 @@ public class PokeshopActivity extends AppCompatActivity {
             }
         });
     }
+
+    private void checkIfOwned() {
+        mRef = FirebaseDatabase.getInstance().getReference("users/" + uid + "/Pokemons/");
+        mRef.addValueEventListener(isOwnedListener);
+    }
+
+    private ValueEventListener isOwnedListener = new ValueEventListener() {
+        @Override
+        public void onDataChange(DataSnapshot dataSnapshot) {
+            Iterator<DataSnapshot> mIterator = dataSnapshot.getChildren().iterator();
+
+            while (mIterator.hasNext()) {
+                DataSnapshot pokemonNumber = mIterator.next();
+
+                Integer pokemonNumberValue = Integer.valueOf(pokemonNumber.getKey());
+                ownedPokemons.add(pokemonNumberValue);
+            }
+
+            updateList();
+        }
+        @Override
+        public void onCancelled(DatabaseError error) {
+            // Failed to read value
+            Log.w(TAG, "Failed to read value.", error.toException());
+        }
+    };
 
     public void showXPAMount() {
         TextView XPTextView = findViewById(R.id.XP);
@@ -161,7 +207,7 @@ public class PokeshopActivity extends AppCompatActivity {
     }
 
     public void updateList() {
-        PokelistAdapter adapter = new PokelistAdapter(getApplicationContext(), pokemons);
+        PokelistAdapter adapter = new PokelistAdapter(getApplicationContext(), pokemons, ownedPokemons);
         ListView pokemonlist = findViewById(R.id.pokemonListView);
 
         pokemonlist.setAdapter(adapter);

@@ -38,11 +38,13 @@ public class PokelistAdapter extends ArrayAdapter {
     private TextView pokemonPrice;
     ImageView pokemonImage;
     TextView pokemonName;
+    ArrayList<Integer> owned;
 
     private String uid;
 
-    PokelistAdapter(Context context, ArrayList<Pokemon> pokemons) {
+    PokelistAdapter(Context context, ArrayList<Pokemon> pokemons, ArrayList<Integer> ownedPokemons) {
         super(context, 0, pokemons);
+        owned = ownedPokemons;
     }
 
     @NonNull
@@ -68,6 +70,14 @@ public class PokelistAdapter extends ArrayAdapter {
 
         buy = view.findViewById(R.id.buy);
 
+        if (owned.contains(pokemonNumberInt)) {
+            buy.setText("Al gekocht");
+            buy.setBackgroundResource(R.color.colorPrimary);
+        } else {
+            buy.setText("Koop mij");
+            buy.setBackgroundResource(R.color.colorAccent);
+        }
+
         pokemonImage = view.findViewById(R.id.imageviewPokemon);
         pokemonName = view.findViewById(R.id.name);
         pokemonPrice = view.findViewById(R.id.cost);
@@ -82,42 +92,16 @@ public class PokelistAdapter extends ArrayAdapter {
         Bitmap pokemonSprite = getBitmap(pokemon.sprite);
         pokemonImage.setImageBitmap(pokemonSprite);
 
-        checkIfOwned(pokemonNumberInt);
-
         buy.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 payForPokemon(pokemonPrice.getText().toString(), pokemonNumber);
             }
         });
+
+
         return view;
     }
-
-    private void checkIfOwned(int position) {
-        DatabaseReference mRef = FirebaseDatabase.getInstance().getReference("users/" + uid + "/Pokemons/" + position);
-        mRef.addValueEventListener(isOwnedListener);
-    }
-
-    private ValueEventListener isOwnedListener = new ValueEventListener() {
-        @Override
-        public void onDataChange(DataSnapshot dataSnapshot) {
-            String ownedOrNot = String.valueOf(dataSnapshot.getValue());
-
-            Log.d("PokeListAdapter", ownedOrNot);
-
-            if (ownedOrNot.equals("true")) {
-                buy.setText(R.string.gekocht);
-//                buy.setBackgroundColor(R.color.colorAccent);
-            } else {
-                buy.setText(R.string.koop);
-            }
-        }
-        @Override
-        public void onCancelled(DatabaseError error) {
-            // Failed to read value
-            Log.w(TAG, "Failed to read value.", error.toException());
-        }
-    } ;
 
     private void payForPokemon(String price, final String pokemonNumber) {
         DatabaseReference mRef = FirebaseDatabase.getInstance().getReference("users/" + uid);
@@ -146,7 +130,6 @@ public class PokelistAdapter extends ArrayAdapter {
                 Log.w("PokelistAdapter", "Failed to read data from database.");
             }
         });
-
     }
 
     private void addPokemon(String position) {

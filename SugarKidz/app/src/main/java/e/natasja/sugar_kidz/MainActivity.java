@@ -2,7 +2,13 @@ package e.natasja.sugar_kidz;
 
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
+import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkRequest;
+import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.v4.view.GestureDetectorCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -49,6 +55,7 @@ public class MainActivity extends AppCompatActivity {
 
     TextView date;
     TextView time;
+    TextView connected;
     SimpleDateFormat dateSDF;
     SimpleDateFormat timeSDF;
     Calendar myCalendar;
@@ -59,6 +66,7 @@ public class MainActivity extends AppCompatActivity {
     private DatabaseReference mRef;
 
     Boolean isParent;
+    Boolean isConnected;
 
     private static final String TAG = "MainActivity";
 
@@ -66,6 +74,10 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        connected = findViewById(R.id.connectionStatus);
+
+//        checkConnectivity();
 
         FirebaseAuth mAuth = FirebaseAuth.getInstance();
         mDatabase = FirebaseDatabase.getInstance();
@@ -82,11 +94,51 @@ public class MainActivity extends AppCompatActivity {
             mRef.addListenerForSingleValueEvent(isParentListener);
         }
 
+//        if ((isConnected != null) && (!isConnected)) {
+//            connected.setText("Niet verbonden met netwerk");
+//            connected.setTextColor(Color.RED);
+//        } else {
+//            connected.setText("Gebruiker: Natasja (Verbonden)");
+//            connected.setTextColor(Color.GREEN);
+//        }
+
         setDate();
         populateLogbook(dateToday);
         populateSpinner();
 
-   }
+    }
+
+    /**
+     * This is a function that checks whether you're connected to the internet: if you're not, it
+     * sends you back to the MainActivity, but disables all further actions.
+     * This method will only work for android API 21 and higher.
+     */
+    private void checkConnectivity() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            return;
+        }
+        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkRequest.Builder builder = new NetworkRequest.Builder();
+
+        connectivityManager.registerNetworkCallback(
+                builder.build(),
+                new ConnectivityManager.NetworkCallback() {
+                    @Override
+                    public void onAvailable(Network network) {
+                        isConnected = true;
+                    }
+                    @Override
+                    public void onLost(Network network) {
+                        isConnected = false;
+                        Intent connectionLost = new Intent(getApplicationContext(), MainActivity.class);
+                        finish();
+                        startActivity(connectionLost);
+
+                        Toast.makeText(getApplicationContext(), "Internet verbinding onderbroken.", Toast.LENGTH_SHORT).show();
+                    }
+                }
+        );
+    }
 
     /**
      * This function sets the spinner that is used to label a measurement with a dutch time-of-the-day
@@ -134,6 +186,7 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
 
+//        if (isConnected) {
         switch(id){
             case (R.id.menu_couple):
                 Intent toCouple = new Intent(this, CoupleActivity.class);
@@ -160,6 +213,13 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(toPokeshop);
                 break;
         }
+//        } else {
+//            Toast.makeText(
+//                    getApplicationContext(),
+//                    "Deze actie kan niet worden uitgevoerd omdat je geen internet verbinding hebt.",
+//                    Toast.LENGTH_SHORT).show();
+//        }
+
         return super.onOptionsItemSelected(item);
     }
 
@@ -322,9 +382,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void goToLogbook(View view) {
-        Intent intent = new Intent(this, LogbookActivity.class);
-        finish();
-        startActivity(intent);
+        if (isConnected) {
+            Intent intent = new Intent(this, LogbookActivity.class);
+            finish();
+            startActivity(intent);
+        }
+
     }
 
 }
