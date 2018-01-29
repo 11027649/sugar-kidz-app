@@ -14,6 +14,7 @@ import android.text.Html;
 import android.util.Base64;
 import android.util.Log;
 
+import android.view.MenuItem;
 import android.view.View;
 
 import android.widget.ListView;
@@ -58,22 +59,13 @@ public class PokeshopActivity extends AppCompatActivity {
     static int MAX_SERIAL_THREAD_POOL_SIZE = 1;
     static final int MAX_CACHE_SIZE = 2 * 1024 * 1024; //2 MB
 
-    private static RequestQueue prepareSerialRequestQueue(Context context) {
-        Cache cache = new DiskBasedCache(context.getCacheDir(), MAX_CACHE_SIZE);
-        Network network = getNetwork();
-        return new RequestQueue(cache, network, MAX_SERIAL_THREAD_POOL_SIZE);
-    }
-
-    private static Network getNetwork() {
-        HttpStack stack;
-        stack = new HurlStack();
-        return new BasicNetwork(stack);
-    }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_pokeshop);
+
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
 
         pokemons = new ArrayList<>();
 
@@ -88,6 +80,20 @@ public class PokeshopActivity extends AppCompatActivity {
 //        for (int i = 7; i < 9; i++) {
 //            PokemonRequest(i);
 //        }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                Intent intent = new Intent(PokeshopActivity.this, MainActivity.class);
+                startActivity(intent);
+                finish();
+                return true;
+
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
     public void showPokemons() {
@@ -154,6 +160,32 @@ public class PokeshopActivity extends AppCompatActivity {
         });
     }
 
+    public void updateList() {
+        PokelistAdapter adapter = new PokelistAdapter(getApplicationContext(), pokemons);
+        ListView pokemonlist = findViewById(R.id.pokemonListView);
+
+        pokemonlist.setAdapter(adapter);
+    }
+
+    public String encodeBitmap(Bitmap bitmap) {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.PNG, 100, baos);
+        String imageEncoded = Base64.encodeToString(baos.toByteArray(), Base64.DEFAULT);
+        return imageEncoded;
+    }
+
+    private static RequestQueue prepareSerialRequestQueue(Context context) {
+        Cache cache = new DiskBasedCache(context.getCacheDir(), MAX_CACHE_SIZE);
+        Network network = getNetwork();
+        return new RequestQueue(cache, network, MAX_SERIAL_THREAD_POOL_SIZE);
+    }
+
+    private static Network getNetwork() {
+        HttpStack stack;
+        stack = new HurlStack();
+        return new BasicNetwork(stack);
+    }
+
     public void PokemonRequest(final int pokemon) {
 
         // use a trivia api to get questions: it's not secured so you only need the url
@@ -199,13 +231,6 @@ public class PokeshopActivity extends AppCompatActivity {
         serialRequestQueue.add(jsObjRequest);
     }
 
-    public String encodeBitmap(Bitmap bitmap) {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.PNG, 100, baos);
-        String imageEncoded = Base64.encodeToString(baos.toByteArray(), Base64.DEFAULT);
-        return imageEncoded;
-    }
-
     public void imageRequestFunction(final String pokemonNumber, final String pokemonName, String imageUrl) {
         ImageRequest imageRequest = new ImageRequest(imageUrl, new Response.Listener<Bitmap>() {
             @Override
@@ -234,18 +259,5 @@ public class PokeshopActivity extends AppCompatActivity {
         );
 
         serialRequestQueue.add(imageRequest);
-    }
-
-    public void updateList() {
-        PokelistAdapter adapter = new PokelistAdapter(getApplicationContext(), pokemons);
-        ListView pokemonlist = findViewById(R.id.pokemonListView);
-
-        pokemonlist.setAdapter(adapter);
-    }
-
-    public void goBackFromPokeshop(View view) {
-        Intent intent = new Intent(this, MainActivity.class);
-        finish();
-        startActivity(intent);
     }
 }

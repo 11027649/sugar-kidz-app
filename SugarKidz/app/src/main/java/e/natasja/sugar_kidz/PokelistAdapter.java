@@ -17,6 +17,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -25,17 +26,22 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 
+import static com.android.volley.VolleyLog.TAG;
+
 /**
  * Created by Natasja on 10-1-2018.
+ * This is a ListAdapter that loads pokemons and their price into a listview, with a button
+ * that makes sure you can buy the pokemon.
  */
-
 public class PokelistAdapter extends ArrayAdapter {
-    Button buy;
-    TextView pokemonPrice;
+    private Button buy;
+    private TextView pokemonPrice;
+    ImageView pokemonImage;
+    TextView pokemonName;
 
-    String uid;
+    private String uid;
 
-    public PokelistAdapter(Context context, ArrayList<Pokemon> pokemons) {
+    PokelistAdapter(Context context, ArrayList<Pokemon> pokemons) {
         super(context, 0, pokemons);
     }
 
@@ -43,19 +49,31 @@ public class PokelistAdapter extends ArrayAdapter {
     @Override
     public View getView(int position, View view, @NonNull ViewGroup parent) {
 
+        FirebaseAuth mAuth = FirebaseAuth.getInstance();
+        FirebaseUser aUser = mAuth.getCurrentUser();
+
+        if (aUser != null) {
+            uid = aUser.getUid();
+        }
+
         Pokemon pokemon = (Pokemon) getItem(position);
+
+        // the pokemons start at 1, and position at 0, so the clicked pokemon's number is position + 1
+        int pokemonNumberInt = position + 1;
+        final String pokemonNumber = String.valueOf(pokemonNumberInt);
 
         if (view == null) {
             view = LayoutInflater.from(getContext()).inflate(R.layout.row_shoplist, parent, false);
         }
 
-        ImageView pokemonImage = view.findViewById(R.id.imageviewPokemon);
-        TextView pokemonName = view.findViewById(R.id.name);
+        buy = view.findViewById(R.id.buy);
+
+        pokemonImage = view.findViewById(R.id.imageviewPokemon);
+        pokemonName = view.findViewById(R.id.name);
         pokemonPrice = view.findViewById(R.id.cost);
 
         pokemonPrice.setTextColor(Color.BLACK);
         pokemonName.setTextColor(Color.BLACK);
-
         pokemonPrice.setText(pokemon.price);
 
         String pokemonNameText = "Hey, ik ben een " + pokemon.name + "!";
@@ -64,49 +82,55 @@ public class PokelistAdapter extends ArrayAdapter {
         Bitmap pokemonSprite = getBitmap(pokemon.sprite);
         pokemonImage.setImageBitmap(pokemonSprite);
 
-        // the pokemons start at 1, and position at 0, so the clicked pokemon's number is position + 1
-        final String pokemonNumber = String.valueOf(position + 1);
-
-        buy = view.findViewById(R.id.buy);
-        buy.setText(pokemonNumber + "Koop mij!");
-//        buy.setOnClickListener(buyListener);
+        checkIfOwned(pokemonNumberInt);
 
         buy.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                buy.setText("Gekocht");
-
                 payForPokemon(pokemonPrice.getText().toString(), pokemonNumber);
             }
         });
-
         return view;
     }
 
-//    private View.OnClickListener buyListener = new View.OnClickListener() {
-//        @Override
-//        public void onClick(View v) {
-//            buy.setText("Gekocht");
-//
-//            payForPokemon(pokemonPrice.getText().toString());
-//        }
-//    };
+    private void checkIfOwned(int position) {
+        DatabaseReference mRef = FirebaseDatabase.getInstance().getReference("users/" + uid + "/Pokemons/" + position);
+        mRef.addValueEventListener(isOwnedListener);
+    }
+
+    private ValueEventListener isOwnedListener = new ValueEventListener() {
+        @Override
+        public void onDataChange(DataSnapshot dataSnapshot) {
+            String ownedOrNot = String.valueOf(dataSnapshot.getValue());
+
+            Log.d("PokeListAdapter", ownedOrNot);
+
+            if (ownedOrNot.equals("true")) {
+                buy.setText(R.string.gekocht);
+//                buy.setBackgroundColor(R.color.colorAccent);
+            } else {
+                buy.setText(R.string.koop);
+            }
+        }
+        @Override
+        public void onCancelled(DatabaseError error) {
+            // Failed to read value
+            Log.w(TAG, "Failed to read value.", error.toException());
+        }
+    } ;
 
     private void payForPokemon(String price, final String pokemonNumber) {
-        uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
         DatabaseReference mRef = FirebaseDatabase.getInstance().getReference("users/" + uid);
-
-//        mRef.addListenerForSingleValueEvent(payListener);
 
         mRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                String xpAmount = (dataSnapshot.child("xpAmount").getValue().toString());
+                String xpAmount = (String.valueOf(dataSnapshot.child("xpAmount").getValue()));
                 int XP = Integer.valueOf(xpAmount);
 
-                String owned_or_not = String.valueOf(dataSnapshot.child("Pokemons").child(pokemonNumber).getValue());
+                String ownedOrNot = String.valueOf(dataSnapshot.child("Pokemons").child(pokemonNumber).getValue());
 
-                if (owned_or_not.equals("null")) {
+                if (ownedOrNot.equals("true")) {
                     Toast.makeText(getContext(), "Deze pokemon heb je al!", Toast.LENGTH_SHORT).show();
                 } else if (XP >= 1000) {
                     addPokemon(pokemonNumber);
@@ -120,45 +144,17 @@ public class PokelistAdapter extends ArrayAdapter {
             @Override
             public void onCancelled(DatabaseError databaseError) {
                 Log.w("PokelistAdapter", "Failed to read data from database.");
-
             }
         });
 
     }
 
-//    private ValueEventListener payListener = new ValueEventListener() {
-//        @Override
-//        public void onDataChange(DataSnapshot dataSnapshot) {
-//            String xpAmount = (dataSnapshot.child("xpAmount").getValue().toString());
-//            int XP = Integer.valueOf(xpAmount);
-//
-//            if (XP > 1000) {
-//                addPokemon(pokemonNumber);
-//                int newXP = XP - 1000;
-//                FirebaseDatabase.getInstance().getReference("users/" + uid + "/xpAmount").setValue(newXP);
-//            } else {
-//                Toast.makeText(getContext(), "Je hebt niet genoeg XP om deze pokemon te kopen.", Toast.LENGTH_SHORT).show();
-//            }
-//
-//        }
-//
-//        @Override
-//        public void onCancelled(DatabaseError databaseError) {
-//            Log.w("PokelistAdapter", "Failed to read data from database.");
-//        }
-//    };
-
-
-
-    public void addPokemon(String position) {
-        FirebaseAuth mAuth = FirebaseAuth.getInstance();
-        String uid = mAuth.getCurrentUser().getUid();
+    private void addPokemon(String position) {
         DatabaseReference mRef = FirebaseDatabase.getInstance().getReference("users/" + uid);
-
         mRef.child("Pokemons").child(position).setValue(true);
     }
 
-    public static Bitmap getBitmap(String photo) {
+    static Bitmap getBitmap(String photo) {
         byte[] decodedString = Base64.decode(photo, Base64.DEFAULT);
         return BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
     }

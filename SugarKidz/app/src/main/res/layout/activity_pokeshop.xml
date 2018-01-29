@@ -15,7 +15,7 @@
             android:id="@+id/XP"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="XP Amount: "
+            android:text="XP in je bezit: "
             android:textSize="18sp"
             android:textStyle="italic" />
 
@@ -24,18 +24,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="loading.." />
+            android:text="laden..." />
     </LinearLayout>
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:onClick="goBackFromPokeshop"
-        android:text="Terug naar hoofdscherm"
-        android:textAlignment="textEnd"
-        android:textColor="@color/colorAccent"
-        android:textSize="14sp"
-        android:textStyle="italic" />
 
     <ListView
         android:id="@+id/pokemonListView"

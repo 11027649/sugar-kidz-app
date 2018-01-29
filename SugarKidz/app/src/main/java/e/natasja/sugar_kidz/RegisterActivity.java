@@ -15,12 +15,16 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
+import java.util.Iterator;
 
 public class RegisterActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
-    private FirebaseDatabase mDatabase;
     private DatabaseReference mRef;
 
     private static final String TAG = "RegisterActivity";
@@ -28,6 +32,7 @@ public class RegisterActivity extends AppCompatActivity {
     private String email;
     private String password;
     private String verifyPassword;
+    private String username;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,14 +40,6 @@ public class RegisterActivity extends AppCompatActivity {
         setContentView(R.layout.activity_register);
 
         mAuth = FirebaseAuth.getInstance();
-        mDatabase = FirebaseDatabase.getInstance();
-        mRef = mDatabase.getReference();
-
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
 
         // check if user is signed in (non-null) and update UI accordingly
         FirebaseUser currentUser = mAuth.getCurrentUser();
@@ -53,7 +50,6 @@ public class RegisterActivity extends AppCompatActivity {
             Intent intent = new Intent(this, MainActivity.class);
             startActivity(intent);
         }
-
     }
 
     /**
@@ -75,13 +71,46 @@ public class RegisterActivity extends AppCompatActivity {
             verifyPassword = verifyPasswordEditText.getText().toString();
 
             if (verifyPassword.equals(password)) {
-                createAccount();
-
+                checkIfUsernameExists();
             } else {
                 Toast.makeText(RegisterActivity.this, "Passwords are not equal",
                         Toast.LENGTH_SHORT).show();
             }
         }
+    }
+
+    public void checkIfUsernameExists() {
+        mRef = FirebaseDatabase.getInstance().getReference("users/");
+
+        EditText usernameEditText = findViewById(R.id.username);
+        username = usernameEditText.getText().toString();
+
+        mRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Iterator<DataSnapshot> mIterator = dataSnapshot.getChildren().iterator();
+                Log.d("Registreren", "Gelijk? daar");
+
+                while (mIterator.hasNext()) {
+                    DataSnapshot user = mIterator.next();
+
+                    String userID = String.valueOf(user.getKey());
+                    String usernameSearch = String.valueOf(user.child(userID).child("username").getValue());
+
+                    Log.d("Registreren", "Gelijk? " + usernameSearch + " " + username);
+
+                    if (usernameSearch.equals(username)) {
+                        Toast.makeText(getApplicationContext(), "Deze gebruikersnaam is al in gebruik!", Toast.LENGTH_SHORT).show();
+                        break;
+                    }
+                    createAccount();
+                }
+            }
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.w(TAG, "Failed to read data.");
+            }
+        });
     }
 
     public void createAccount() {
@@ -92,9 +121,6 @@ public class RegisterActivity extends AppCompatActivity {
                         if (task.isSuccessful()) {
                             // Sign in success, update UI with the signed-in user's information
                             Log.d(TAG, "createUserWithEmail:success");
-
-                            EditText usernameEditText = findViewById(R.id.username);
-                            String username = usernameEditText.getText().toString();
 
                             // make a new user and find user id
                             FirebaseUser currentUser = mAuth.getCurrentUser();

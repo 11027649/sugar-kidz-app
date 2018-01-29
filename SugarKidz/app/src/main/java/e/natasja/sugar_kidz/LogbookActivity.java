@@ -3,10 +3,14 @@ package e.natasja.sugar_kidz;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Intent;
+import android.graphics.Color;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -28,7 +32,7 @@ public class LogbookActivity extends AppCompatActivity {
     private static final String TAG = "LogbookActivity";
     private TotalLogbookAdapter mAdapter;
 
-    String userID;
+    String uid;
     String kidID;
 
     Boolean notificationNeeded;
@@ -41,11 +45,11 @@ public class LogbookActivity extends AppCompatActivity {
         FirebaseAuth mAuth = FirebaseAuth.getInstance();
         FirebaseUser aUser = mAuth.getCurrentUser();
 
-        userID = aUser.getUid();
+        uid = aUser.getUid();
 
         notificationNeeded = false;
 
-        DatabaseReference myRef = FirebaseDatabase.getInstance().getReference("users/" + userID);
+        DatabaseReference myRef = FirebaseDatabase.getInstance().getReference("users/" + uid);
 
         // check if the person that comes here is a parent or a kid
         myRef.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -70,15 +74,32 @@ public class LogbookActivity extends AppCompatActivity {
         });
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                Intent intent = new Intent(LogbookActivity.this, MainActivity.class);
+                startActivity(intent);
+                finish();
+                return true;
+
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
     public void doKidStuff() {
         TextView backbutton = findViewById(R.id.navigate);
-        backbutton.setText("Terug naar hoofdscherm");
+        backbutton.setVisibility(View.INVISIBLE);
+
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
 
         TextView logoutParent = findViewById(R.id.parentLogout);
         logoutParent.setVisibility(View.INVISIBLE);
 
         // populate listview
-        populateListView(userID);
+        populateListView(uid);
     }
 
     public void setUncoupledParentUI() {
@@ -122,13 +143,19 @@ public class LogbookActivity extends AppCompatActivity {
 
         mBuilder.setContentIntent(resultPendingIntent);
 
+        mBuilder.setLights(Color.BLUE, 500, 500);
+        long[] pattern = {500,500,500,500,500,500,500,500,500};
+        mBuilder.setVibrate(pattern);
+        Uri alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+        mBuilder.setSound(alarmSound);
+
         int mNotificationId = 1;
         NotificationManager mManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         mManager.notify(mNotificationId, mBuilder.build());
     }
 
     public void checkIfCoupled() {
-        DatabaseReference mRef = FirebaseDatabase.getInstance().getReference("users/" + userID + "/coupled");
+        DatabaseReference mRef = FirebaseDatabase.getInstance().getReference("users/" + uid + "/coupled");
 
         mRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -148,12 +175,12 @@ public class LogbookActivity extends AppCompatActivity {
         });
     }
 
-    public void populateListView(String uid) {
+    public void populateListView(String uidToDisplay) {
         mAdapter = new TotalLogbookAdapter(this);
 
         FirebaseDatabase mDatabase = FirebaseDatabase.getInstance();
 
-        final DatabaseReference mDatabaseRef = mDatabase.getReference("users/" + uid + "/Measurements");
+        final DatabaseReference mDatabaseRef = mDatabase.getReference("users/" + uidToDisplay + "/Measurements");
         Query myTopSolvedQuery = mDatabaseRef.orderByChild("Measurements");
 
         myTopSolvedQuery.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -188,6 +215,9 @@ public class LogbookActivity extends AppCompatActivity {
                     }
                 }
 
+                // if you're a kid you don't need notifications
+                // set notification needed to true after populating the listview to make sure it doesn't
+                // send you a notification the moment you open the app
                 if (isParent) {
                     notificationNeeded = true;
                 }
@@ -224,11 +254,6 @@ public class LogbookActivity extends AppCompatActivity {
             Intent toLogbook = new Intent(this, CoupleActivity.class);
             finish();
             startActivity(toLogbook);
-        } else {
-            // if not a parent, go back to main
-            Intent intent = new Intent(this, MainActivity.class);
-            finish();
-            startActivity(intent);
         }
     }
 

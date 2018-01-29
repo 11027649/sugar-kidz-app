@@ -15,10 +15,11 @@ import java.util.ArrayList;
 
 /**
  * Created by Natasja on 17-1-2018.
+ * LogbookAdapter is an ArrayAdapter that shows the measurements of the user, but only of today.
  */
 
 public class LogbookAdapter extends ArrayAdapter {
-    public LogbookAdapter(Context context, ArrayList<Measurement> measurements) {
+    LogbookAdapter(Context context, ArrayList<Measurement> measurements) {
         super(context, 0, measurements);
     }
 

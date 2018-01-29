@@ -87,6 +87,8 @@ public class TotalLogbookAdapter extends BaseAdapter {
             mHolder = new MeasurementViewHolder();
             hHolder = new HeaderViewHolder();
 
+            Log.d("TOTAL LOGBOOK", "in de if, voor de switch");
+
             switch (rowType) {
                 case TYPE_ITEM:
                     convertView = mInflater.inflate(R.layout.row_logbook, null);
@@ -95,7 +97,11 @@ public class TotalLogbookAdapter extends BaseAdapter {
                     mHolder.labelTextView = convertView.findViewById(R.id.label);
                     mHolder.heightTextView = convertView.findViewById(R.id.height);
 
-                    Log.d("CONTROL LISTVIEW", "type_item");
+                    mHolder.labelTextView.setText(measurements.get(position).labelMeasurement);
+                    mHolder.heightTextView.setText(measurements.get(position).heightMeasurement);
+                    mHolder.timeTextView.setText(measurements.get(position).timeMeasurement);
+
+                    Log.d("TOTAL LOGBOOK", "type_item");
 
                     convertView.setTag(mHolder);
 
@@ -104,9 +110,10 @@ public class TotalLogbookAdapter extends BaseAdapter {
                 case TYPE_SEPARATOR:
                     convertView = mInflater.inflate(R.layout.row_header, null);
                     hHolder.holderTextView = convertView.findViewById(R.id.dateTextView);
-                    isHeader = true;
 
-                    Log.d("CONTROL LISTVIEW", "type_separator");
+                    hHolder.holderTextView.setText(measurements.get(position).labelMeasurement);
+
+                    Log.d("TOTAL LOGBOOK", "type_separator");
 
                     convertView.setTag(hHolder);
 
@@ -115,24 +122,20 @@ public class TotalLogbookAdapter extends BaseAdapter {
         } else {
             try {
                 mHolder = (MeasurementViewHolder) convertView.getTag();
-            } catch(ClassCastException e) {
-                hHolder = (HeaderViewHolder) convertView.getTag();
-            }
-        }
-
-        Log.d("TOTAL LOGBOOK", "daar");
-
-        if (isHeader) {
-            Log.d("TOTAL LOGBOOK", "hier");
-            hHolder.holderTextView.setText(measurements.get(position).labelMeasurement);
-        } else {
-            if (mHolder != null) {
                 Log.d("TOTAL LOGBOOK", "Boe ik ben in mholder != null");
+
                 mHolder.labelTextView.setText(measurements.get(position).labelMeasurement);
                 mHolder.heightTextView.setText(measurements.get(position).heightMeasurement);
                 mHolder.timeTextView.setText(measurements.get(position).timeMeasurement);
+
+            } catch(ClassCastException e) {
+                hHolder = (HeaderViewHolder) convertView.getTag();
+
+                Log.d("TOTAL LOGBOOK", "hier");
+                hHolder.holderTextView.setText(measurements.get(position).labelMeasurement);
             }
         }
+
         return convertView;
     }
 

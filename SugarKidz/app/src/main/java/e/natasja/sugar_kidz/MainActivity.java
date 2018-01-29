@@ -39,22 +39,24 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
     String dateToday;
+    String timeToday;
 
     ArrayList<Measurement> measurementArray;
 
     TextView date;
     TextView time;
     SimpleDateFormat dateSDF;
+    SimpleDateFormat timeSDF;
     Calendar myCalendar;
 
-    String userID;
+    String uid;
 
-    private FirebaseAuth mAuth;
     private FirebaseDatabase mDatabase;
-    private DatabaseReference mDatabaseRef;
+    private DatabaseReference mRef;
 
     Boolean isParent;
 
@@ -65,7 +67,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mAuth = FirebaseAuth.getInstance();
+        FirebaseAuth mAuth = FirebaseAuth.getInstance();
         mDatabase = FirebaseDatabase.getInstance();
 
         if (mAuth.getCurrentUser() == null) {
@@ -73,35 +75,24 @@ public class MainActivity extends AppCompatActivity {
             finish();
             startActivity(intent);
         } else {
-            userID = mAuth.getCurrentUser().getUid();
-            mDatabaseRef = FirebaseDatabase.getInstance().getReference("users/" + userID);
+            uid = mAuth.getCurrentUser().getUid();
 
-            mDatabaseRef.addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(DataSnapshot dataSnapshot) {
-                    // This method is called once with the initial value and again
-                    // whenever data at this location is updated.
-                    isParent = (boolean) dataSnapshot.child("isParent").getValue();
-                    Log.d(TAG, "Value is: " + isParent);
-
-                    if (isParent) {
-                        Intent unauthorized = new Intent(MainActivity.this, LogbookActivity.class);
-                        finish();
-                        startActivity(unauthorized);
-                    }
-                }
-                @Override
-                public void onCancelled(DatabaseError error) {
-                    // Failed to read value
-                    Log.w(TAG, "Failed to read value.", error.toException());
-                }
-            });
+            // check if user is a parent
+            mRef = FirebaseDatabase.getInstance().getReference("users/" + uid);
+            mRef.addListenerForSingleValueEvent(isParentListener);
         }
 
         setDate();
-
         populateLogbook(dateToday);
+        populateSpinner();
 
+   }
+
+    /**
+     * This function sets the spinner that is used to label a measurement with a dutch time-of-the-day
+     * that is common to measure your glucose levels.
+     */
+    public void populateSpinner() {
         Spinner moments = findViewById(R.id.labelMeasurement);
         ArrayAdapter<CharSequence> momentsAdapter = ArrayAdapter.createFromResource(
                 this,
@@ -110,10 +101,30 @@ public class MainActivity extends AppCompatActivity {
 
         momentsAdapter.setDropDownViewResource(android.R.layout.simple_dropdown_item_1line);
         moments.setAdapter(momentsAdapter);
+    }
 
-   }
+    ValueEventListener isParentListener = new ValueEventListener() {
+       @Override
+       public void onDataChange(DataSnapshot dataSnapshot) {
+           // This method is called once with the initial value and again
+           // whenever data at this location is updated.
+           isParent = (boolean) dataSnapshot.child("isParent").getValue();
+           Log.d(TAG, "Value is: " + isParent);
 
-   @Override
+           if (isParent) {
+               Intent unauthorized = new Intent(MainActivity.this, LogbookActivity.class);
+               finish();
+               startActivity(unauthorized);
+           }
+       }
+       @Override
+       public void onCancelled(DatabaseError error) {
+           // Failed to read value
+           Log.w(TAG, "Failed to read value.", error.toException());
+       }
+   };
+
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
@@ -157,31 +168,29 @@ public class MainActivity extends AppCompatActivity {
         time = findViewById(R.id.time);
 
         long datetime = System.currentTimeMillis();
-        dateSDF = new SimpleDateFormat("dd-MM-yy");
-        SimpleDateFormat timeSDF = new SimpleDateFormat("HH:mm");
+        dateSDF = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+        timeSDF = new SimpleDateFormat("HH:mm", Locale.getDefault());
 
         dateToday = dateSDF.format(datetime);
-        String timeToday = timeSDF.format(datetime);
+        timeToday = timeSDF.format(datetime);
 
         date.setText(dateToday);
         time.setText(timeToday);
     }
 
     public void populateLogbook(String dateToday) {
-        FirebaseUser user = mAuth.getCurrentUser();
-        String userId = user.getUid();
-        DatabaseReference mDatabaseRef = mDatabase.getReference("users/" + userId + "/Measurements/" + dateToday);
+        mRef = mDatabase.getReference("users/" + uid + "/Measurements/" + dateToday);
 
         measurementArray = new ArrayList<>();
-        measurementArray.clear();
 
-        mDatabaseRef.addValueEventListener(new ValueEventListener() {
+        mRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange (DataSnapshot dataSnapshot) {
                 Iterator<DataSnapshot> iterator = dataSnapshot.getChildren().iterator();
                 Log.d(TAG, "Total Measurements: " + dataSnapshot.getChildrenCount());
 
                 ListView myList = findViewById(R.id.listView);
+                measurementArray.clear();
 
                 while (iterator.hasNext()) {
                     DataSnapshot measurement = iterator.next();
@@ -198,7 +207,6 @@ public class MainActivity extends AppCompatActivity {
                     LogbookAdapter mAdapter = new LogbookAdapter(getApplicationContext(), measurementArray);
                     myList.setAdapter(mAdapter);
                 }
-
             }
 
             @Override
@@ -237,15 +245,14 @@ public class MainActivity extends AppCompatActivity {
         int hour = myCalendar.get(Calendar.HOUR_OF_DAY);
         int minute = myCalendar.get(Calendar.MINUTE);
 
-        final TextView time = findViewById(R.id.time);
-
         TimePickerDialog mTimePicker;
 
         mTimePicker = new TimePickerDialog(MainActivity.this, new TimePickerDialog.OnTimeSetListener() {
-            @Override
             public void onTimeSet(TimePicker timePicker, int selectedHour, int selectedMinute) {
-                String timeString = selectedHour + ":" + selectedMinute;
-                time.setText(timeString);
+                myCalendar.set(Calendar.HOUR_OF_DAY, selectedHour);
+                myCalendar.set(Calendar.MINUTE, selectedMinute);
+
+                time.setText(timeSDF.format(myCalendar.getTime()));
             }
         }, hour, minute, true);
 
@@ -268,28 +275,26 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(this, "Vul de hoogte van je bloedsuiker in!", Toast.LENGTH_SHORT).show();
         } else {
 
-            final FirebaseUser user = mAuth.getCurrentUser();
-            final DatabaseReference mDatabaseRef = mDatabase.getReference("users/" + user.getUid());
-
-
+            mRef = mDatabase.getReference("users/" + uid);
             SimpleMeasurement simple = new SimpleMeasurement(label, height);
 
-            mDatabaseRef.child("Measurements").child(dateMeasurement).child(timeMeasurement).setValue(simple).addOnCompleteListener(new OnCompleteListener<Void>() {
+            // add this measurement to firebase (if there isn't a measurement yet at this time)
+            mRef.child("Measurements").child(dateMeasurement).child(timeMeasurement).setValue(simple).addOnCompleteListener(new OnCompleteListener<Void>() {
                 @Override
                 public void onComplete(@NonNull Task<Void> task) {
                     if (!task.isSuccessful()){
-                        Toast.makeText(getApplicationContext(), task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                        Log.w(TAG, "Exception occured: " + task.getException());
+                        Toast.makeText(getApplicationContext(), "Iets ging fout... :(", Toast.LENGTH_SHORT).show();
                     } else {
                         Toast.makeText(MainActivity.this, "Je hebt deze meting toegevoegd!", Toast.LENGTH_SHORT).show();
-
-                        gainXP(mDatabaseRef);
+                        gainXP();
                     }
                 }
             });
             }
     }
 
-    public void gainXP(final DatabaseReference mDatabaseRef) {
+    public void gainXP() {
 
         final ValueEventListener listener = new ValueEventListener() {
             @Override
@@ -301,7 +306,7 @@ public class MainActivity extends AppCompatActivity {
                 Log.d(TAG, "XPAmount is: " + XPamount);
 
                 Long XPamountNew = XPamount + 100;
-                mDatabaseRef.child("xpAmount").setValue(XPamountNew);
+                mRef.child("xpAmount").setValue(XPamountNew);
             }
 
             @Override
@@ -312,7 +317,7 @@ public class MainActivity extends AppCompatActivity {
         };
 
         // Read from the database
-        mDatabaseRef.addListenerForSingleValueEvent(listener);
+        mRef.addListenerForSingleValueEvent(listener);
 
     }
 

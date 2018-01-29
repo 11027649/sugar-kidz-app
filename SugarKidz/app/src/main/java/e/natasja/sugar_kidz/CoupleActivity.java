@@ -6,6 +6,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Layout;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -48,6 +49,9 @@ public class CoupleActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_couple);
 
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+
         usernameLayout = findViewById(R.id.username);
         codeLayout = findViewById(R.id.code);
         usernameFillLayout = findViewById(R.id.fillUsername);
@@ -86,6 +90,26 @@ public class CoupleActivity extends AppCompatActivity {
                     Log.w(TAG, "Failed to read value.", error.toException());
                 }
             });
+        }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                if (!isParent) {
+                    Intent intent = new Intent(this, MainActivity.class);
+                    finish();
+                    startActivity(intent);
+                } else {
+                    Intent intent2 = new Intent(this, LogbookActivity.class);
+                    finish();
+                    startActivity(intent2);
+                }
+                return true;
+
+            default:
+                return super.onOptionsItemSelected(item);
         }
     }
 
@@ -137,18 +161,6 @@ public class CoupleActivity extends AppCompatActivity {
         timer.schedule(doAsynchronousTask, 150000, 150000);
     }
 
-    public void goBackFromCouple(View view) {
-        if (!isParent) {
-            Intent intent = new Intent(this, MainActivity.class);
-            finish();
-            startActivity(intent);
-        } else {
-            Intent intent2 = new Intent(this, LogbookActivity.class);
-            finish();
-            startActivity(intent2);
-        }
-    }
-
     public void searchToUser(View view) {
         final EditText usernameEditText = findViewById(R.id.usernameEditText);
         final String usernameToSearch = usernameEditText.getText().toString();
@@ -177,7 +189,6 @@ public class CoupleActivity extends AppCompatActivity {
                         break;
                     }
                 }
-
                 if (!foundKid) {
                     Toast.makeText(getApplicationContext(), "Gebruiker niet gevonden!", Toast.LENGTH_SHORT).show();
                 }

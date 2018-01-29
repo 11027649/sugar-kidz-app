@@ -8,6 +8,11 @@
     tools:context="e.natasja.sugar_kidz.MainActivity">
 
     <TextView
+        android:id="@+id/connectionStatus"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <TextView
         android:id="@+id/SugarKidz"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -93,21 +98,49 @@
                 android:layout_height="match_parent"
                 android:orientation="vertical">
 
-                <TextView
-                    android:id="@+id/time"
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/_12_39"
-                    android:onClick="timePicker"
-                    android:textSize="18sp" />
+                    android:orientation="horizontal">
 
-                <TextView
-                    android:id="@+id/date"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/_15_01_18"
-                    android:onClick="datePicker"
-                    android:textSize="18sp" />
+                    <TextView
+                        android:id="@+id/time"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="00:00"
+                        android:textSize="18sp" />
+
+                    <ImageView
+                        android:id="@+id/imageView"
+                        android:onClick="timePicker"
+                        android:layout_width="32dp"
+                        android:layout_height="21dp"
+                        app:srcCompat="@drawable/editor" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/date"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="0000-00-00"
+                        android:textSize="18sp" />
+
+                    <ImageView
+                        android:id="@+id/imageView3"
+                        android:onClick="datePicker"
+                        android:layout_width="34dp"
+                        android:layout_height="21dp"
+                        android:layout_weight="1"
+                        app:srcCompat="@drawable/editor" />
+                </LinearLayout>
+
             </LinearLayout>
 
             <Spinner
@@ -118,7 +151,7 @@
 
             <EditText
                 android:id="@+id/hightMeasurement"
-                android:layout_width="100dp"
+                android:layout_width="68dp"
                 android:layout_height="wrap_content"
                 android:ems="10"
                 android:hint="@string/_4_2"
@@ -167,7 +200,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:onClick="goToLogbook"
-        android:text="Klik hier om al je metingen te bekijken"
+        android:text="Klik hier om al je metingen te bekijken "
         android:textAlignment="textEnd"
         android:textColor="@color/colorAccent"
         android:textStyle="italic" />

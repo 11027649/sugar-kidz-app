@@ -24,6 +24,8 @@
     <string name="stripes" />
     <string name="_4_2">4.2</string>
     <string name="_15_01_18">15-01-18</string>
+    <string name="gekocht">Al gekocht</string>
+    <string name="koop">Koop mij!</string>
 
     <string-array name="moments">
         <item>VO</item>
