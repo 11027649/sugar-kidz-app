@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.support.annotation.NonNull;
 import android.app.AlertDialog;
+import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -79,11 +80,15 @@ public class MainLogbookAdapter extends ArrayAdapter {
         // instantiate an AlertDialog.Builder with its constructor
         AlertDialog.Builder builder = new AlertDialog.Builder(mContext, R.style.Theme_AppCompat_Dialog_Alert);
 
-        // chain together various setter methods to set the dialog characteristics
-        builder.setMessage("Weet je zeker dat je deze meting van " +
+        String message = "Weet je zeker dat je deze meting van " +
                 toDelete.heightMeasurement + " om " +
-                toDelete.timeMeasurement + " wilt verwijderen?")
-                .setTitle("Weet je zeker dat je deze meting wilt verwijderen?");
+                toDelete.timeMeasurement + " wilt verwijderen?";
+
+        String title = "Let op";
+
+        // chain together various setter methods to set the dialog characteristics
+        builder.setMessage(Html.fromHtml("<font color='black'>" + message + "</font>"))
+            .setTitle(Html.fromHtml("<font color='black'>" + title + "</font>"));
 
         // add the buttons
         builder.setPositiveButton("Ja, verwijder", new DialogInterface.OnClickListener() {
@@ -106,9 +111,5 @@ public class MainLogbookAdapter extends ArrayAdapter {
         AlertDialog dialog = builder.create();
         dialog.show();
     }
-
-
-
-
 
 }
