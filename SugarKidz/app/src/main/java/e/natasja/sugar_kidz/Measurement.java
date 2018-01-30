@@ -11,7 +11,7 @@ public class Measurement {
     public String timeMeasurement;
     public String heightMeasurement;
 
-    // default constructor is important for firebase
+    // default constructor is important for FireBase
     public Measurement() {}
 
     // 'normal' constructor of the class

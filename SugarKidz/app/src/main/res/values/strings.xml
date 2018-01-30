@@ -26,8 +26,16 @@
     <string name="_15_01_18">15-01-18</string>
     <string name="gekocht">Al gekocht</string>
     <string name="koop">Koop mij!</string>
+    <string name="vaker_meten">Vaker je bloedsuiker meten!</string>
+    <string name="air" />
+    <string name="time">00:00</string>
+    <string name="hoogte">hoogte</string>
+    <string name="all_measurements">Klik hier om al je metingen te bekijken</string>
+    <string name="date">0000-00-00</string>
+    <string name="edit_button">edit button</string>
 
     <string-array name="moments">
+        <item>extra</item>
         <item>VO</item>
         <item>NO</item>
         <item>VL</item>
@@ -35,7 +43,6 @@
         <item>VA</item>
         <item>NA</item>
         <item>VS</item>
-        <item>extra</item>
     </string-array>
 
 </resources>

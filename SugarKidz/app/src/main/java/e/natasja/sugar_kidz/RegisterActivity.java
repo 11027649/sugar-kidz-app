@@ -19,6 +19,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Logger;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.Iterator;
@@ -43,10 +44,12 @@ public class RegisterActivity extends AppCompatActivity {
 
         mAuth = FirebaseAuth.getInstance();
 
+
         // check if user is signed in (non-null) and update UI accordingly
         FirebaseUser currentUser = mAuth.getCurrentUser();
 
         if (currentUser != null) {
+
             // if this happens the user will be redirected to the login activity where there will be
             // checked if the user is a parent and will be send to the right starting screen.
             Intent intent = new Intent(this, LoginActivity.class);
@@ -84,27 +87,16 @@ public class RegisterActivity extends AppCompatActivity {
         username = usernameEditText.getText().toString();
         usernameExists = false;
 
-        Log.d("Registreren", "hier");
-
         mRef = FirebaseDatabase.getInstance().getReference("users/");
         mRef.addListenerForSingleValueEvent(usernameExistsListener);
-
-        Log.d("Registreren", "erna");
     }
 
     ValueEventListener usernameExistsListener = new ValueEventListener() {
         @Override
         public void onDataChange(DataSnapshot dataSnapshot) {
-            Iterator<DataSnapshot> mIterator = dataSnapshot.getChildren().iterator();
-            Log.d("Registreren", "Gelijk? daar" + dataSnapshot.getChildrenCount());
 
-            while (mIterator.hasNext()) {
-                DataSnapshot user = mIterator.next();
-
-                String userID = String.valueOf(user.getKey());
-                String usernameSearch = String.valueOf(user.child(userID).child("username").getValue());
-
-                Log.d("Registreren", "Gelijk? " + usernameSearch + " " + username);
+            for (DataSnapshot user : dataSnapshot.getChildren()) {
+                String usernameSearch = String.valueOf(user.child("username").getValue());
 
                 if (usernameSearch.equals(username)) {
                     Toast.makeText(getApplicationContext(), "Deze gebruikersnaam is al in gebruik!", Toast.LENGTH_SHORT).show();
@@ -117,7 +109,6 @@ public class RegisterActivity extends AppCompatActivity {
                 createAccount();
             }
         }
-
         @Override
         public void onCancelled(DatabaseError databaseError) {
             Log.w(TAG, "Failed to read data." + databaseError.toException());
@@ -140,15 +131,15 @@ public class RegisterActivity extends AppCompatActivity {
 
                             if (parent.isChecked()) {
                                 aUser = new User(username, true,null);
-                                mRef.child("users").child(uid).setValue(aUser);
-                                mRef.child("users").child(uid).child("coupled").setValue(false);
+                                mRef.child(uid).setValue(aUser);
+                                mRef.child(uid).child("coupled").setValue(false);
 
                                 Intent intent = new Intent(getApplicationContext(), LogbookActivity.class);
                                 finish();
                                 startActivity(intent);
                             } else {
                                 aUser = new User(username, false,1000);
-                                mRef.child("users").child(uid).setValue(aUser);
+                                mRef.child(uid).setValue(aUser);
 
                                 Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                                 finish();

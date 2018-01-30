@@ -38,6 +38,7 @@ import com.google.firebase.database.ValueEventListener;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.Locale;
 
@@ -61,6 +62,8 @@ public class MainActivity extends AppCompatActivity {
 
     Boolean isParent;
     Boolean isConnected;
+
+    ListView myList;
 
     private static final String TAG = "MainActivity";
 
@@ -235,9 +238,9 @@ public class MainActivity extends AppCompatActivity {
         time.setText(timeToday);
     }
 
-    public void populateLogbook(String dateToday) {
+    public void populateLogbook(final String dateToday) {
         mRef = mDatabase.getReference("users/" + uid + "/Measurements/" + dateToday);
-        final ListView myList = findViewById(R.id.listView);
+        myList = findViewById(R.id.listView);
         measurementArray = new ArrayList<>();
 
         mRef.addValueEventListener(new ValueEventListener() {
@@ -245,7 +248,6 @@ public class MainActivity extends AppCompatActivity {
             public void onDataChange (DataSnapshot dataSnapshot) {
                 Iterator<DataSnapshot> iterator = dataSnapshot.getChildren().iterator();
                 Log.d(TAG, "Total Measurements: " + dataSnapshot.getChildrenCount());
-
 
                 measurementArray.clear();
 
@@ -257,13 +259,22 @@ public class MainActivity extends AppCompatActivity {
 
                     timeMeasurement = measurement.getKey();
                     SimpleMeasurement simple = measurement.getValue(SimpleMeasurement.class);
-                    Measurement newMeasurement = new Measurement(simple.getLabel(), "Today", timeMeasurement, simple.getHeight());
+                    Measurement newMeasurement = new Measurement(simple.getLabel(), dateToday, timeMeasurement, simple.getHeight());
 
                     measurementArray.add(newMeasurement);
-
-                    MainLogbookAdapter mAdapter = new MainLogbookAdapter(getApplicationContext(), measurementArray);
-                    myList.setAdapter(mAdapter);
                 }
+
+                if (measurementArray.isEmpty()) {
+                    Measurement noMeasurementsYet = new Measurement("Nog geen metingen vandaag");
+                    measurementArray.add(noMeasurementsYet);
+                } else {
+                    Collections.reverse(measurementArray);
+                    setLastMeasurement();
+                }
+
+                MainLogbookAdapter mAdapter = new MainLogbookAdapter(MainActivity.this, measurementArray);
+                myList.setAdapter(mAdapter);
+                mAdapter.deleteOnLongClick(myList);
             }
 
             @Override
@@ -272,20 +283,23 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        myList.setLongClickable(true);
-        myList.setOnItemLongClickListener(longClickListener);
+
+
 
     }
 
-    AdapterView.OnItemLongClickListener longClickListener = new AdapterView.OnItemLongClickListener() {
-        @Override
-        public boolean onItemLongClick(AdapterView<?> adapterView, View view, int position, long id) {
+    private void setLastMeasurement() {
+        TextView date = findViewById(R.id.lastMeasurementDate);
+        TextView height = findViewById(R.id.lastMeasurementHeight);
 
-            LoginActivity.Toaster(MainActivity.this, "You long clicked on " + position + " " + id);
+        Measurement lastMeasurement = measurementArray.get(0);
 
-            return true;
-        }
-    };
+        String dateString = lastMeasurement.dateMeasurement + ", " + lastMeasurement.timeMeasurement;
+        String heightString = lastMeasurement.heightMeasurement;
+
+        date.setText(dateString);
+        height.setText(heightString);
+    }
 
     public void datePicker(View view) {
         myCalendar = Calendar.getInstance();
@@ -361,7 +375,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
             });
-            }
+        }
     }
 
     public void gainXP() {

@@ -10,7 +10,7 @@
     <TextView
         android:id="@+id/connectionStatus"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"/>
 
     <TextView
         android:id="@+id/SugarKidz"
@@ -43,17 +43,17 @@
         android:orientation="horizontal">
 
         <TextView
-            android:id="@+id/textView"
+            android:id="@+id/lastMeasurementDate"
             android:layout_width="143dp"
-            android:layout_height="wrap_content"
-            android:text="@string/_11_januari_12_00"
+            android:layout_height="match_parent"
+            android:text="@string/vaker_meten"
             android:textAlignment="center" />
 
         <TextView
-            android:id="@+id/textView4"
+            android:id="@+id/lastMeasurementHeight"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="4,2"
+            android:text="@string/air"
             android:textSize="36sp"
             android:textStyle="bold" />
 
@@ -105,12 +105,14 @@
 
                     <TextView
                         android:id="@+id/time"
-                        android:layout_width="wrap_content"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:text="00:00"
+                        android:text="@string/time"
+                        android:layout_weight="1"
                         android:textSize="18sp" />
 
                     <ImageView
+                        android:contentDescription="@string/edit_button"
                         android:id="@+id/imageView"
                         android:onClick="timePicker"
                         android:layout_width="32dp"
@@ -129,10 +131,11 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="0000-00-00"
+                        android:text="@string/date"
                         android:textSize="18sp" />
 
                     <ImageView
+                        android:contentDescription="@string/edit_button"
                         android:id="@+id/imageView3"
                         android:onClick="datePicker"
                         android:layout_width="34dp"
@@ -145,7 +148,7 @@
 
             <Spinner
                 android:id="@+id/labelMeasurement"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1" />
 
@@ -154,8 +157,7 @@
                 android:layout_width="68dp"
                 android:layout_height="wrap_content"
                 android:ems="10"
-                android:hint="@string/_4_2"
-                android:focusedByDefault="false"
+                android:hint="@string/hoogte"
                 android:inputType="numberDecimal"
                 android:labelFor="@+id/editText" />
 
@@ -201,7 +203,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:onClick="goToLogbook"
-        android:text="Klik hier om al je metingen te bekijken "
+        android:text="@string/all_measurements"
         android:textAlignment="textEnd"
         android:textColor="@color/colorAccent"
         android:textStyle="italic" />

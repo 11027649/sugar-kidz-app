@@ -19,13 +19,13 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Logger;
 import com.google.firebase.database.ValueEventListener;
 
 public class LoginActivity extends AppCompatActivity {
     private static final String TAG = "LoginActivity";
 
     private FirebaseAuth mAuth;
-    private DatabaseReference mRef;
     private String uid;
 
     Boolean isParent;
@@ -34,7 +34,6 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-
         mAuth = FirebaseAuth.getInstance();
 
         // call this method immediately to check if the user is already logged in
@@ -51,10 +50,9 @@ public class LoginActivity extends AppCompatActivity {
 
         if (currentUser != null) {
             uid = currentUser.getUid();
+            DatabaseReference mRef = FirebaseDatabase.getInstance().getReference("users/" + uid);
+            mRef.addListenerForSingleValueEvent(isParentListener);
         }
-
-        mRef = FirebaseDatabase.getInstance().getReference("users/"  + uid);
-        mRef.addListenerForSingleValueEvent(isParentListener);
     }
 
     /**

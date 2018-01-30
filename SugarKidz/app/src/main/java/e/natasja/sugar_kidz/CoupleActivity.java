@@ -130,7 +130,7 @@ public class CoupleActivity extends AppCompatActivity {
             generatedCodeTextView = findViewById(R.id.generatedCode);
 
             generatedCodeTextView.setText(code);
-            mDatabaseRef.child("couple code").setValue(code);
+            mDatabaseRef.child("coupleCode").setValue(code);
 
             RepeatTask();
         }
@@ -215,7 +215,7 @@ public class CoupleActivity extends AppCompatActivity {
     }
 
     public void checkCoupleCode(final String code) {
-        mDatabaseRef = FirebaseDatabase.getInstance().getReference("users/" + kidID + "/couple code");
+        mDatabaseRef = FirebaseDatabase.getInstance().getReference("users/" + kidID + "/coupleCode");
 
         mDatabaseRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
