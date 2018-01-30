@@ -4,18 +4,9 @@
     <translate
         android:fromXDelta="0%p"
         android:fromYDelta="0%p"
-        android:toXDelta="8%p"
+        android:toXDelta="25%p"
         android:toYDelta="0%p"
-        android:duration="1257"
-        android:repeatCount="infinite"
-        android:repeatMode="reverse"/>
-
-    <translate
-        android:fromXDelta="0%p"
-        android:fromYDelta="0%p"
-        android:toXDelta="0%p"
-        android:toYDelta="3%p"
-        android:duration="3327"
+        android:duration="4517"
         android:repeatCount="infinite"
         android:repeatMode="reverse"/>
 </set>

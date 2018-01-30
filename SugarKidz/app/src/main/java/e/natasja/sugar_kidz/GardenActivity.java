@@ -22,6 +22,7 @@ import java.util.Iterator;
 
 public class GardenActivity extends AppCompatActivity {
     ImageView pokemon1, pokemon2, pokemon3, pokemon4, pokemon5;
+    ImageView background1, background2, background3, background4, background5;
     int currentPokemon = 0;
 
     private static final String TAG = "GardenActivity.java";
@@ -50,14 +51,17 @@ public class GardenActivity extends AppCompatActivity {
         } else {
             uid = aUser.getUid();
             mDatabase = FirebaseDatabase.getInstance();
-
+            LoginActivity.Toaster(
+                    GardenActivity.this,
+                    "Klik op de pokemons om ze te veranderen!");
             setUIOptions();
             findOwnedPokemon();
-            findViewsAndMakeClickable();
+            loadPokemons();
+            addClickListener();
         }
     }
 
-    public void findViewsAndMakeClickable() {
+    public void loadPokemons() {
         pokemon1 = findViewById(R.id.pokemon1);
         pokemon2 = findViewById(R.id.pokemon2);
         pokemon3 = findViewById(R.id.pokemon3);
@@ -79,7 +83,7 @@ public class GardenActivity extends AppCompatActivity {
 
                     if (whatImageView == 1) {
                         findSprite(pokemonToDisplay2, pokemon1);
-                    } else if (whatImageView == 2){
+                    } else if (whatImageView == 2) {
                         findSprite(pokemonToDisplay2, pokemon2);
                     } else if (whatImageView == 3) {
                         findSprite(pokemonToDisplay2, pokemon3);
@@ -96,21 +100,34 @@ public class GardenActivity extends AppCompatActivity {
                 Log.w(TAG, "Failed to read data from database.");
             }
         });
-
-
-        clickOn(pokemon1, 1);
-        clickOn(pokemon2, 2);
-        clickOn(pokemon3, 3);
-        clickOn(pokemon4, 4);
-        clickOn(pokemon5, 5);
-
-        pokemon2.setAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.flying));
     }
 
-    public void clickOn(final ImageView pokemon, final int whatPokemon) {
-        pokemon.setClickable(true);
+    public void addClickListener() {
+        // add the onclicklistener to background: because of the animation, the onclick listener
+        // doesn't work (good) at the pokemon imageview
+        background1 = findViewById(R.id.background1);
+        background2 = findViewById(R.id.background2);
+        background3 = findViewById(R.id.background3);
+        background4 = findViewById(R.id.background4);
+        background5 = findViewById(R.id.background5);
 
-        pokemon.setOnClickListener(new View.OnClickListener() {
+        clickOn(background1, pokemon1, 1);
+        clickOn(background2, pokemon2, 2);
+        clickOn(background3, pokemon3, 3);
+        clickOn(background4, pokemon4, 4);
+        clickOn(background5, pokemon5, 5);
+
+        pokemon1.setAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.flying1));
+        pokemon2.setAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.flying2));
+        pokemon3.setAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.walking));
+        pokemon4.setAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.walking2));
+        pokemon5.setAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.walking3));
+    }
+
+    public void clickOn(final ImageView background, final ImageView pokemon, final int whatPokemon) {
+        background.setClickable(true);
+
+        background.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 

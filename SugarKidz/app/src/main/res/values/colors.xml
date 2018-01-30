@@ -2,7 +2,15 @@
 <resources>
     <color name="transparent">#00b53f3f</color>
     <color name="whiteglow">#38ffffff</color>
+
+    <color name="blue">#987ba9ea</color>
+    <color name="purple">#959f5be7</color>
+    <color name="yellow">#9eead55b</color>
+    <color name="red">#a7da535c</color>
+    <color name="green">#9a2d8739</color>
+
     <color name="colorPrimary">#00926d</color>
     <color name="colorPrimaryDark">#007356</color>
+
     <color name="colorAccent">#dd1f7d</color>
 </resources>

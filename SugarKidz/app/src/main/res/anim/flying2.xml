@@ -16,5 +16,4 @@
        android:duration="3025"
        android:repeatCount="infinite"
        android:repeatMode="reverse"/>
-
 </set>

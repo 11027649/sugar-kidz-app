@@ -17,93 +17,153 @@
         android:layout_marginTop="8dp"
         android:background="@color/colorPrimaryDark"
         android:onClick="goBack"
-        android:text="Ga terug naar het hoofdscherm"
+        android:text="@string/ga_terug_naar_het_hoofdscherm"
         android:textSize="18sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.017" />
-
-    <ImageView
-        android:id="@+id/pokemon5"
-        android:layout_width="100dp"
-        android:layout_height="100dp"
-        android:layout_marginBottom="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginTop="8dp"
-        android:background="@color/whiteglow"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.137"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.946" android:contentDescription="TODO"/>
-
-    <ImageView
-        android:id="@+id/pokemon4"
-        android:layout_width="100dp"
-        android:layout_height="100dp"
-        android:layout_marginBottom="60dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:background="@color/whiteglow"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.97"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="1.0" android:contentDescription="TODO"/>
-
-    <ImageView
-        android:id="@+id/pokemon1"
-        android:layout_width="100dp"
-        android:layout_height="100dp"
-        android:layout_marginBottom="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="72dp"
-        android:background="@color/whiteglow"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.835"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.0" />
 
-    <ImageView
-        android:id="@+id/pokemon3"
-        android:layout_width="100dp"
-        android:layout_height="100dp"
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:layout_marginBottom="8dp"
-        android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
-        android:background="@color/whiteglow"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.425"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.668">
+        app:layout_constraintTop_toTopOf="parent">
 
-    </ImageView>
+        <ImageView
+            android:id="@+id/pokemon1"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_alignEnd="@+id/background3"
+            android:layout_alignTop="@+id/background1"
+            android:layout_marginTop="18dp"
+            android:background="@color/whiteglow"
+            android:contentDescription="@string/pokemon"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.835"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.0" />
 
-    <ImageView
-        android:id="@+id/pokemon2"
-        android:layout_width="100dp"
-        android:layout_height="100dp"
-        android:layout_marginBottom="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:background="@color/whiteglow"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.111"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.291" />
+        <ImageView
+            android:id="@+id/pokemon2"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_alignTop="@+id/pokemon1"
+            android:layout_marginEnd="15dp"
+            android:layout_marginTop="16dp"
+            android:layout_toStartOf="@+id/pokemon3"
+            android:background="@color/whiteglow"
+            android:contentDescription="@string/pokemon"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.111"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.291" />
+
+        <ImageView
+            android:id="@+id/pokemon3"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_above="@+id/pokemon5"
+            android:layout_alignStart="@+id/background1"
+            android:background="@color/whiteglow"
+            android:contentDescription="@string/pokemon"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.425"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.668">
+
+        </ImageView>
+
+        <ImageView
+            android:id="@+id/pokemon4"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentStart="true"
+            android:layout_marginBottom="14dp"
+            android:background="@color/whiteglow"
+            android:contentDescription="@string/pokemon"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.97"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="1.0" />
+
+        <ImageView
+            android:id="@+id/pokemon5"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_alignBottom="@+id/pokemon4"
+            android:layout_alignStart="@+id/background5"
+            android:layout_marginBottom="33dp"
+            android:background="@color/whiteglow"
+            android:contentDescription="@string/pokemon"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.137"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.946" />
+
+        <ImageView
+            android:id="@+id/background1"
+            android:layout_width="220dp"
+            android:layout_height="170dp"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginTop="54dp"
+            android:background="@color/transparent"
+            android:contentDescription="@string/background_for_pokemon" />
+
+        <ImageView
+            android:id="@+id/background2"
+            android:layout_width="150dp"
+            android:layout_height="330dp"
+            android:layout_alignBottom="@+id/pokemon3"
+            android:layout_alignParentStart="true"
+            android:layout_marginBottom="80dp"
+            android:background="@color/transparent"
+            android:contentDescription="@string/background_for_pokemon" />
+
+        <ImageView
+            android:id="@+id/background3"
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:layout_above="@+id/pokemon5"
+            android:layout_alignStart="@+id/pokemon3"
+            android:background="@color/transparent"
+            android:contentDescription="@string/background_for_pokemon" />
+
+        <ImageView
+            android:id="@+id/background4"
+            android:layout_width="200dp"
+            android:layout_height="150dp"
+            android:layout_alignParentStart="true"
+            android:layout_alignTop="@+id/pokemon5"
+            android:background="@color/transparent"
+            android:contentDescription="@string/background_for_pokemon" />
+
+        <ImageView
+            android:id="@+id/background5"
+            android:layout_width="170dp"
+            android:layout_height="140dp"
+            android:layout_alignParentEnd="true"
+            android:layout_below="@+id/background3"
+            android:background="@color/transparent"
+            android:contentDescription="@string/background_for_pokemon" />
+    </RelativeLayout>
+
 </android.support.constraint.ConstraintLayout>

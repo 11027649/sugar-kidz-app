@@ -33,6 +33,9 @@
     <string name="all_measurements">Klik hier om al je metingen te bekijken</string>
     <string name="date">0000-00-00</string>
     <string name="edit_button">edit button</string>
+    <string name="pokemon">pokemon</string>
+    <string name="background_for_pokemon">background for pokemon</string>
+    <string name="ga_terug_naar_het_hoofdscherm">Ga terug naar het hoofdscherm</string>
 
     <string-array name="moments">
         <item>extra</item>
