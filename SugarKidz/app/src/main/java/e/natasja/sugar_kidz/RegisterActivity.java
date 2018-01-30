@@ -31,8 +31,10 @@ public class RegisterActivity extends AppCompatActivity {
 
     private String email;
     private String password;
-    private String verifyPassword;
     private String username;
+    private String uid;
+
+    private Boolean usernameExists;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,15 +47,15 @@ public class RegisterActivity extends AppCompatActivity {
         FirebaseUser currentUser = mAuth.getCurrentUser();
 
         if (currentUser != null) {
-            // if already logged in, go to main menu
-            Log.d(TAG, currentUser.getUid());
-            Intent intent = new Intent(this, MainActivity.class);
+            // if this happens the user will be redirected to the login activity where there will be
+            // checked if the user is a parent and will be send to the right starting screen.
+            Intent intent = new Intent(this, LoginActivity.class);
             startActivity(intent);
         }
     }
 
     /**
-     * Log in existing users, or create account for users that want to register.
+     * Create account for users that want to register.
      */
     public void register(View view) {
         EditText emailEditText = findViewById(R.id.email);
@@ -65,53 +67,62 @@ public class RegisterActivity extends AppCompatActivity {
 
         // check if password length is long enough for FireBase
         if (password.length() < 7) {
-            Toast.makeText(this, "Password must 7 characters or longer.",
-                    Toast.LENGTH_SHORT).show();
+            LoginActivity.Toaster(RegisterActivity.this, "Het wachtwoord moet 7 karakters of langer zijn.");
         } else {
-            verifyPassword = verifyPasswordEditText.getText().toString();
+            String verifyPassword = verifyPasswordEditText.getText().toString();
 
             if (verifyPassword.equals(password)) {
                 checkIfUsernameExists();
             } else {
-                Toast.makeText(RegisterActivity.this, "Passwords are not equal",
-                        Toast.LENGTH_SHORT).show();
+                LoginActivity.Toaster(RegisterActivity.this, "Wachtwoorden zijn niet gelijk");
             }
         }
     }
 
     public void checkIfUsernameExists() {
-        mRef = FirebaseDatabase.getInstance().getReference("users/");
-
         EditText usernameEditText = findViewById(R.id.username);
         username = usernameEditText.getText().toString();
+        usernameExists = false;
 
-        mRef.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                Iterator<DataSnapshot> mIterator = dataSnapshot.getChildren().iterator();
-                Log.d("Registreren", "Gelijk? daar");
+        Log.d("Registreren", "hier");
 
-                while (mIterator.hasNext()) {
-                    DataSnapshot user = mIterator.next();
+        mRef = FirebaseDatabase.getInstance().getReference("users/");
+        mRef.addListenerForSingleValueEvent(usernameExistsListener);
 
-                    String userID = String.valueOf(user.getKey());
-                    String usernameSearch = String.valueOf(user.child(userID).child("username").getValue());
+        Log.d("Registreren", "erna");
+    }
 
-                    Log.d("Registreren", "Gelijk? " + usernameSearch + " " + username);
+    ValueEventListener usernameExistsListener = new ValueEventListener() {
+        @Override
+        public void onDataChange(DataSnapshot dataSnapshot) {
+            Iterator<DataSnapshot> mIterator = dataSnapshot.getChildren().iterator();
+            Log.d("Registreren", "Gelijk? daar" + dataSnapshot.getChildrenCount());
 
-                    if (usernameSearch.equals(username)) {
-                        Toast.makeText(getApplicationContext(), "Deze gebruikersnaam is al in gebruik!", Toast.LENGTH_SHORT).show();
-                        break;
-                    }
-                    createAccount();
+            while (mIterator.hasNext()) {
+                DataSnapshot user = mIterator.next();
+
+                String userID = String.valueOf(user.getKey());
+                String usernameSearch = String.valueOf(user.child(userID).child("username").getValue());
+
+                Log.d("Registreren", "Gelijk? " + usernameSearch + " " + username);
+
+                if (usernameSearch.equals(username)) {
+                    Toast.makeText(getApplicationContext(), "Deze gebruikersnaam is al in gebruik!", Toast.LENGTH_SHORT).show();
+                    usernameExists = true;
                 }
             }
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                Log.w(TAG, "Failed to read data.");
+
+            if (!usernameExists) {
+                // if the while loop doesn't break, create an account
+                createAccount();
             }
-        });
-    }
+        }
+
+        @Override
+        public void onCancelled(DatabaseError databaseError) {
+            Log.w(TAG, "Failed to read data." + databaseError.toException());
+        }
+    };
 
     public void createAccount() {
         mAuth.createUserWithEmailAndPassword(email, password)
@@ -119,12 +130,9 @@ public class RegisterActivity extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
-                            // Sign in success, update UI with the signed-in user's information
-                            Log.d(TAG, "createUserWithEmail:success");
-
                             // make a new user and find user id
                             FirebaseUser currentUser = mAuth.getCurrentUser();
-                            String userId = currentUser.getUid();
+                            uid = currentUser.getUid();
 
                             // check if new user is a parent
                             CheckBox parent = findViewById(R.id.parentCheckbox);
@@ -132,15 +140,15 @@ public class RegisterActivity extends AppCompatActivity {
 
                             if (parent.isChecked()) {
                                 aUser = new User(username, true,null);
-                                mRef.child("users").child(userId).setValue(aUser);
-                                mRef.child("users").child(userId).child("coupled").setValue(false);
+                                mRef.child("users").child(uid).setValue(aUser);
+                                mRef.child("users").child(uid).child("coupled").setValue(false);
 
                                 Intent intent = new Intent(getApplicationContext(), LogbookActivity.class);
                                 finish();
                                 startActivity(intent);
                             } else {
                                 aUser = new User(username, false,1000);
-                                mRef.child("users").child(userId).setValue(aUser);
+                                mRef.child("users").child(uid).setValue(aUser);
 
                                 Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                                 finish();
@@ -149,9 +157,9 @@ public class RegisterActivity extends AppCompatActivity {
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.w(TAG, "createUserWithEmail:failure", task.getException());
-                            Toast.makeText(RegisterActivity.this, "Registration failed, " +
-                                            "please pick a valid email and password.",
-                                    Toast.LENGTH_SHORT).show();
+                            LoginActivity.Toaster(RegisterActivity.this,
+                                    "Registreren is mislukt. Geef alsjeblieft een " +
+                                            "geldig wachtwoord en email adres op.");
                         }
                     }
                 });

@@ -8,7 +8,6 @@ import android.util.Log;
 import android.view.View;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
-import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -21,13 +20,13 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-public class MyGardenActivity extends AppCompatActivity {
+public class GardenActivity extends AppCompatActivity {
     ImageView pokemon1, pokemon2, pokemon3, pokemon4, pokemon5;
     int currentPokemon = 0;
 
     private static final String TAG = "GardenActivity.java";
     FirebaseAuth mAuth;
-    FirebaseUser user;
+    FirebaseUser aUser;
 
     FirebaseDatabase mDatabase;
     DatabaseReference mRef;
@@ -39,24 +38,23 @@ public class MyGardenActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_my_garden);
+        setContentView(R.layout.activity_garden);
 
         mAuth = FirebaseAuth.getInstance();
-        user = mAuth.getCurrentUser();
+        aUser = mAuth.getCurrentUser();
 
-        if (user != null) {
-            uid = user.getUid();
-            mDatabase = FirebaseDatabase.getInstance();
-        } else {
-            Intent notLoggedIn = new Intent (this, LoginActivity.class);
+        if (aUser == null) {
+            Intent unauthorized = new Intent (this, LoginActivity.class);
             finish();
-            startActivity(notLoggedIn);
+            startActivity(unauthorized);
+        } else {
+            uid = aUser.getUid();
+            mDatabase = FirebaseDatabase.getInstance();
+
+            setUIOptions();
+            findOwnedPokemon();
+            findViewsAndMakeClickable();
         }
-
-        setUIOptions();
-        findOwnedPokemon();
-        findViewsAndMakeClickable();
-
     }
 
     public void findViewsAndMakeClickable() {
@@ -143,8 +141,8 @@ public class MyGardenActivity extends AppCompatActivity {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
 
-                    String toDecode = dataSnapshot.child("sprite").getValue().toString();
-                    Bitmap decoded = PokelistAdapter.getBitmap(toDecode);
+                    String toDecode = String.valueOf(dataSnapshot.child("sprite").getValue());
+                    Bitmap decoded = PokeshopAdapter.getBitmap(toDecode);
 
                     // search light.png
                     pokemon.setBackgroundColor(getResources().getColor(R.color.transparent));

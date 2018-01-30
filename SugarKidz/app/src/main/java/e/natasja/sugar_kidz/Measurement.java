@@ -21,4 +21,11 @@ public class Measurement {
         this.timeMeasurement = aTime;
         this.heightMeasurement = aHeight;
     }
+
+    public Measurement(String aLabel) {
+        this.labelMeasurement = aLabel;
+        this.dateMeasurement = "";
+        this.timeMeasurement = "";
+        this.heightMeasurement = "";
+    }
 }

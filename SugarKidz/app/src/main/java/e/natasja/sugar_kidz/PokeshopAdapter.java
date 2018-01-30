@@ -26,14 +26,12 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 
-import static com.android.volley.VolleyLog.TAG;
-
 /**
  * Created by Natasja on 10-1-2018.
  * This is a ListAdapter that loads pokemons and their price into a listview, with a button
  * that makes sure you can buy the pokemon.
  */
-public class PokelistAdapter extends ArrayAdapter {
+public class PokeshopAdapter extends ArrayAdapter {
     private Button buy;
     private TextView pokemonPrice;
     ImageView pokemonImage;
@@ -42,7 +40,7 @@ public class PokelistAdapter extends ArrayAdapter {
 
     private String uid;
 
-    PokelistAdapter(Context context, ArrayList<Pokemon> pokemons, ArrayList<Integer> ownedPokemons) {
+    PokeshopAdapter(Context context, ArrayList<Pokemon> pokemons, ArrayList<Integer> ownedPokemons) {
         super(context, 0, pokemons);
         owned = ownedPokemons;
     }
@@ -65,7 +63,7 @@ public class PokelistAdapter extends ArrayAdapter {
         final String pokemonNumber = String.valueOf(pokemonNumberInt);
 
         if (view == null) {
-            view = LayoutInflater.from(getContext()).inflate(R.layout.row_shoplist, parent, false);
+            view = LayoutInflater.from(getContext()).inflate(R.layout.row_pokeshop, parent, false);
         }
 
         buy = view.findViewById(R.id.buy);
@@ -127,7 +125,7 @@ public class PokelistAdapter extends ArrayAdapter {
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                Log.w("PokelistAdapter", "Failed to read data from database.");
+                Log.w("PokeshopAdapter", "Failed to read data from database.");
             }
         });
     }

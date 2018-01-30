@@ -37,8 +37,8 @@ public class CoupleActivity extends AppCompatActivity {
 
     TextView generatedCodeTextView;
 
-    public String userID;
-    public String kidID;
+    private String uid;
+    private String kidID;
 
     Boolean isParent;
 
@@ -64,34 +64,33 @@ public class CoupleActivity extends AppCompatActivity {
             finish();
             startActivity(notLoggedIn);
         } else {
-            userID = mAuth.getCurrentUser().getUid();
-            mDatabaseRef = FirebaseDatabase.getInstance().getReference("users/" + userID);
-
-            mDatabaseRef.addValueEventListener(new ValueEventListener() {
-                @Override
-                public void onDataChange(DataSnapshot dataSnapshot) {
-                    // This method is called once with the initial value and again
-                    // whenever data at this location is updated.
-                    isParent = (boolean) dataSnapshot.child("isParent").getValue();
-                    Log.d(TAG, "Value is: " + isParent);
-
-                    final String username = (String) dataSnapshot.child("username").getValue();
-
-                    if (isParent) {
-                        setParentUI();
-                    } else {
-                        setKidUI(username);
-                    }
-
-                }
-                @Override
-                public void onCancelled(DatabaseError error) {
-                    // Failed to read value
-                    Log.w(TAG, "Failed to read value.", error.toException());
-                }
-            });
+            uid = mAuth.getCurrentUser().getUid();
+            mDatabaseRef = FirebaseDatabase.getInstance().getReference("users/" + uid);
+            mDatabaseRef.addValueEventListener(isParentListener);
         }
     }
+
+    ValueEventListener isParentListener = new ValueEventListener() {
+        @Override
+        public void onDataChange(DataSnapshot dataSnapshot) {
+            isParent = (boolean) dataSnapshot.child("isParent").getValue();
+            Log.d(TAG, "Value is: " + isParent);
+
+            final String username = (String) dataSnapshot.child("username").getValue();
+
+            if (isParent) {
+                setParentUI();
+            } else {
+                setKidUI(username);
+            }
+        }
+
+        @Override
+        public void onCancelled(DatabaseError error) {
+            // Failed to read value
+            Log.w(TAG, "Failed to read value.", error.toException());
+        }
+    };
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -226,7 +225,7 @@ public class CoupleActivity extends AppCompatActivity {
                 if (code.equals(codeToCheckWith) && (!codeToCheckWith.equals("null"))) {
                     Toast.makeText(CoupleActivity.this, "Je hebt je account succesvol gekoppeld!", Toast.LENGTH_SHORT).show();
 
-                    mDatabaseRef = FirebaseDatabase.getInstance().getReference("users/" + userID + "/coupled");
+                    mDatabaseRef = FirebaseDatabase.getInstance().getReference("users/" + uid + "/coupled");
                     mDatabaseRef.setValue(kidID);
                 } else {
                     Toast.makeText(CoupleActivity.this, "De code klopt niet of kan niet worden gevonden. ", Toast.LENGTH_SHORT).show();

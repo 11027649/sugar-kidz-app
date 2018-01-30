@@ -30,10 +30,12 @@ public class LogbookActivity extends AppCompatActivity {
     Boolean isParent;
 
     private static final String TAG = "LogbookActivity";
-    private TotalLogbookAdapter mAdapter;
+    private LogbookAdapter mAdapter;
 
     String uid;
     String kidID;
+
+    DatabaseReference mRef;
 
     Boolean notificationNeeded;
 
@@ -45,34 +47,41 @@ public class LogbookActivity extends AppCompatActivity {
         FirebaseAuth mAuth = FirebaseAuth.getInstance();
         FirebaseUser aUser = mAuth.getCurrentUser();
 
-        uid = aUser.getUid();
+        if (aUser == null) {
+            Intent unauthorized = new Intent(this, LoginActivity.class);
+            finish();
+            startActivity(unauthorized);
+        } else {
+            uid = aUser.getUid();
+            notificationNeeded = false;
 
-        notificationNeeded = false;
+            mRef = FirebaseDatabase.getInstance().getReference("users/" + uid);
 
-        DatabaseReference myRef = FirebaseDatabase.getInstance().getReference("users/" + uid);
+            // check if user is a parent or a kid
+            mRef.addListenerForSingleValueEvent(isParentListener);
 
-        // check if the person that comes here is a parent or a kid
-        myRef.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                // This method is called once with the initial value and again
-                // whenever data at this location is updated.
-                isParent = (boolean) dataSnapshot.child("isParent").getValue();
-                Log.d(TAG, "Value is: " + isParent);
-
-                if (isParent) {
-                    checkIfCoupled();
-                } else {
-                    doKidStuff();
-                }
-            }
-            @Override
-            public void onCancelled(DatabaseError error) {
-                // Failed to read value
-                Log.w(TAG, "Failed to read value.", error.toException());
-            }
-        });
+        }
     }
+
+    ValueEventListener isParentListener = new ValueEventListener() {
+        @Override
+        public void onDataChange(DataSnapshot dataSnapshot) {
+            isParent = (boolean) dataSnapshot.child("isParent").getValue();
+            Log.d(TAG, "Value is: " + isParent);
+
+            if (isParent) {
+                checkIfCoupled();
+            } else {
+                doKidStuff();
+            }
+        }
+
+        @Override
+        public void onCancelled(DatabaseError error) {
+            // failed to read value
+            Log.w(TAG, "Failed to read value.", error.toException());
+        }
+    };
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -176,7 +185,7 @@ public class LogbookActivity extends AppCompatActivity {
     }
 
     public void populateListView(String uidToDisplay) {
-        mAdapter = new TotalLogbookAdapter(this);
+        mAdapter = new LogbookAdapter(this);
 
         FirebaseDatabase mDatabase = FirebaseDatabase.getInstance();
 

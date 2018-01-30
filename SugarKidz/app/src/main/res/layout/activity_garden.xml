@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/landscape"
-    tools:context="e.natasja.sugar_kidz.MyGardenActivity">
+    tools:context="e.natasja.sugar_kidz.GardenActivity">
 
     <TextView
         android:id="@+id/textView3"

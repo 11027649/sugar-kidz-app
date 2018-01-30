@@ -1,5 +1,6 @@
 package e.natasja.sugar_kidz;
 
+import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
@@ -24,6 +25,8 @@ public class LoginActivity extends AppCompatActivity {
     private static final String TAG = "LoginActivity";
 
     private FirebaseAuth mAuth;
+    private DatabaseReference mRef;
+    private String uid;
 
     Boolean isParent;
 
@@ -33,77 +36,31 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
 
         mAuth = FirebaseAuth.getInstance();
+
+        // call this method immediately to check if the user is already logged in
+        checkIfParent();
     }
 
-    @Override
-    public void onStart() {
-        super.onStart();
-
-        //check if user is signed in (non-null) and update UI accordingly
+    /**
+     * This method checks if the user is a parent, by adding the isParentListener to de database.
+     * This Listener will send the user to the right UI.
+     */
+    public void checkIfParent() {
+        // check if user is signed in (non-null) and update UI accordingly
         FirebaseUser currentUser = mAuth.getCurrentUser();
 
         if (currentUser != null) {
-            String uid = currentUser.getUid();
-            DatabaseReference mDatabaseRef = FirebaseDatabase.getInstance().getReference("users/"  + uid);
-
-            mDatabaseRef.addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(DataSnapshot dataSnapshot) {
-                    // This method is called once with the initial value and again
-                    // whenever data at this location is updated.
-                    isParent = (boolean) dataSnapshot.child("isParent").getValue();
-                    Log.d(TAG, "Value is: " + isParent);
-
-                    if (isParent) {
-                        Intent toParentUI = new Intent(LoginActivity.this, LogbookActivity.class);
-                        finish();
-                        startActivity(toParentUI);
-                    } else {
-                        Intent toKidUI = new Intent(LoginActivity.this, MainActivity.class);
-                        finish();
-                        startActivity(toKidUI);
-                    }
-                }
-                @Override
-                public void onCancelled(DatabaseError error) {
-                    // Failed to read value
-                    Log.w(TAG, "Failed to read value.", error.toException());
-                }
-            });
+            uid = currentUser.getUid();
         }
+
+        mRef = FirebaseDatabase.getInstance().getReference("users/"  + uid);
+        mRef.addListenerForSingleValueEvent(isParentListener);
     }
 
-    public void checkIfParent() {
-        String userID = mAuth.getCurrentUser().getUid();
-        DatabaseReference myRef = FirebaseDatabase.getInstance().getReference("users/" + userID);
-
-        myRef.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                // This method is called once with the initial value and again
-                // whenever data at this location is updated.
-                isParent = (boolean) dataSnapshot.child("isParent").getValue();
-                Log.d(TAG, "Value is: " + isParent);
-
-                // sign in succes, update UI with the signed-in user's information
-                if (isParent) {
-                    Intent intent = new Intent(getApplicationContext(), LogbookActivity.class);
-                    finish();
-                    startActivity(intent);
-                } else {
-                    Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-                    finish();
-                    startActivity(intent);
-                }
-            }
-            @Override
-            public void onCancelled(DatabaseError error) {
-                // Failed to read value
-                Log.w(TAG, "Failed to read value.", error.toException());
-            }
-        });
-    }
-
+    /**
+     * This is the OnClick listener from the login button. It checks the users email and password
+     * match and if the user is a parent, and sends you to the right start screen..
+     */
     public void login(View view) {
         EditText emailEditText = findViewById(R.id.email);
         EditText passwordEditText = findViewById(R.id.password);
@@ -112,12 +69,9 @@ public class LoginActivity extends AppCompatActivity {
         String password = passwordEditText.getText().toString();
 
         if (email.equals("")) {
-            Toast.makeText(LoginActivity.this, "Please fill in your email adress",
-                    Toast.LENGTH_SHORT).show();
-        }
-        if (password.equals("")) {
-            Toast.makeText(LoginActivity.this, "Please fill in your password",
-                    Toast.LENGTH_SHORT).show();
+            Toaster(LoginActivity.this, "Vul alsjeblieft je emailadres in.");
+        } else if (password.equals("")) {
+            Toaster(LoginActivity.this, "Vul alsjeblieft je wachtwoord in.");
         }
 
         mAuth.signInWithEmailAndPassword(email, password)
@@ -128,15 +82,56 @@ public class LoginActivity extends AppCompatActivity {
                             checkIfParent();
                         } else {
                             Log.w(TAG, "signInWithEmail:failure", task.getException());
-                            Toast.makeText(LoginActivity.this, "Email and password don't " +
-                                    "match, or account doesn't exist yet.", Toast.LENGTH_SHORT).show();
+                            Toaster(LoginActivity.this, "De combinatie van email en " +
+                                    "wachtwoord komt niet overeen, of je moet nog een account aanmaken.");
                         }
                     }
                 });
     }
 
+    /**
+     * This is a Toaster method that can be used in the whole app.
+     */
+    public static void Toaster(Context context, String message) {
+        Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
+    }
+
+    /**
+     * This EventListener checks once if the user is a parent or not, and adjusts the boolean
+     * isParent value.
+     */
+    ValueEventListener isParentListener = new ValueEventListener() {
+        @Override
+        public void onDataChange(DataSnapshot dataSnapshot) {
+            // this method is called once with the initial value
+            isParent = (boolean) dataSnapshot.child("isParent").getValue();
+            Log.d(TAG, "Value is: " + isParent);
+
+            // sign in succes, update UI with the signed-in user's information
+            if (isParent) {
+                Intent intent = new Intent(getApplicationContext(), LogbookActivity.class);
+                finish();
+                startActivity(intent);
+            } else {
+                Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                finish();
+                startActivity(intent);
+            }
+        }
+
+        @Override
+        public void onCancelled(DatabaseError error) {
+            // failed to read value
+            Log.w(TAG, "Failed to read value.", error.toException());
+        }
+    };
+
+    /**
+     * This is the OnClick method of the "don't have an account yet?" button.
+     */
     public void toRegisterActivity(View view) {
         Intent intent = new Intent(this, RegisterActivity.class);
         startActivity(intent);
     }
+
 }

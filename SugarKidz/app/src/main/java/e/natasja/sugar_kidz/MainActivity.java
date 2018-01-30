@@ -10,17 +10,14 @@ import android.net.Network;
 import android.net.NetworkRequest;
 import android.os.Build;
 import android.support.annotation.NonNull;
-import android.support.v4.view.GestureDetectorCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.GestureDetector;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.AutoCompleteTextView;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -32,18 +29,15 @@ import android.widget.Toast;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.Logger;
 import com.google.firebase.database.ValueEventListener;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.Locale;
 
@@ -55,7 +49,7 @@ public class MainActivity extends AppCompatActivity {
 
     TextView date;
     TextView time;
-    TextView connected;
+
     SimpleDateFormat dateSDF;
     SimpleDateFormat timeSDF;
     Calendar myCalendar;
@@ -75,48 +69,55 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        connected = findViewById(R.id.connectionStatus);
-
-//        checkConnectivity();
+        isConnected = false;
+        checkConnectivity();
 
         FirebaseAuth mAuth = FirebaseAuth.getInstance();
         mDatabase = FirebaseDatabase.getInstance();
 
         if (mAuth.getCurrentUser() == null) {
-            Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+            Intent unauthorized = new Intent(MainActivity.this, LoginActivity.class);
             finish();
-            startActivity(intent);
+            startActivity(unauthorized);
         } else {
             uid = mAuth.getCurrentUser().getUid();
 
             // check if user is a parent
             mRef = FirebaseDatabase.getInstance().getReference("users/" + uid);
             mRef.addListenerForSingleValueEvent(isParentListener);
+
+            setDate();
+            populateLogbook(dateToday);
+            populateSpinner();
         }
 
-//        if ((isConnected != null) && (!isConnected)) {
-//            connected.setText("Niet verbonden met netwerk");
-//            connected.setTextColor(Color.RED);
-//        } else {
-//            connected.setText("Gebruiker: Natasja (Verbonden)");
-//            connected.setTextColor(Color.GREEN);
-//        }
+    }
 
-        setDate();
-        populateLogbook(dateToday);
-        populateSpinner();
+    @Override
+    protected void onStart() {
+        super.onStart();
 
+        setConnectionInfo();
+    }
+
+    private void setConnectionInfo() {
+        TextView connected = findViewById(R.id.connectionStatus);
+        if (!isConnected) {
+            String notConnected = "Gebruikersprofiel: onbekend (Niet verbonden)";
+            connected.setText(notConnected);
+            connected.setTextColor(Color.RED);
+        } else {
+            String connectedString = "Gebruikersprofiel: Natasja (Verbonden)";
+            connected.setText(connectedString);
+            connected.setTextColor(Color.GREEN);
+        }
     }
 
     /**
      * This is a function that checks whether you're connected to the internet: if you're not, it
      * sends you back to the MainActivity, but disables all further actions.
-     * This method will only work for android API 21 and higher.
      */
     private void checkConnectivity() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-            return;
-        }
         ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkRequest.Builder builder = new NetworkRequest.Builder();
 
@@ -126,6 +127,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onAvailable(Network network) {
                         isConnected = true;
+//                        setConnectionInfo();
                     }
                     @Override
                     public void onLost(Network network) {
@@ -134,7 +136,7 @@ public class MainActivity extends AppCompatActivity {
                         finish();
                         startActivity(connectionLost);
 
-                        Toast.makeText(getApplicationContext(), "Internet verbinding onderbroken.", Toast.LENGTH_SHORT).show();
+                        LoginActivity.Toaster(getApplicationContext(), "Internet verbinding onderbroken.");
                     }
                 }
         );
@@ -186,39 +188,34 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
 
-//        if (isConnected) {
-        switch(id){
-            case (R.id.menu_couple):
-                Intent toCouple = new Intent(this, CoupleActivity.class);
-                finish();
-                startActivity(toCouple);
-                break;
+        if (isConnected) {
+            switch(id) {
+                case (R.id.menu_couple):
+                    Intent toCouple = new Intent(this, CoupleActivity.class);
+                    startActivity(toCouple);
+                    break;
 
-            case (R.id.menu_garden):
-                Intent toGarden = new Intent(this, MyGardenActivity.class);
-                finish();
-                startActivity(toGarden);
-                break;
+                case (R.id.menu_garden):
+                    Intent toGarden = new Intent(this, GardenActivity.class);
+                    startActivity(toGarden);
+                    break;
 
-            case (R.id.menu_logout):
-                FirebaseAuth.getInstance().signOut();
-                Intent logout = new Intent(this, LoginActivity.class);
-                finish();
-                startActivity(logout);
-                break;
+                case (R.id.menu_logout):
+                    FirebaseAuth.getInstance().signOut();
+                    Intent logout = new Intent(this, LoginActivity.class);
+                    startActivity(logout);
+                    break;
 
-            case (R.id.menu_pokeshop):
-                Intent toPokeshop = new Intent(MainActivity.this, PokeshopActivity.class);
-                finish();
-                startActivity(toPokeshop);
-                break;
+                case (R.id.menu_pokeshop):
+                    Intent toPokeshop = new Intent(MainActivity.this, PokeshopActivity.class);
+                    startActivity(toPokeshop);
+                    break;
+            }
+        } else {
+            LoginActivity.Toaster(
+                    MainActivity.this,
+                    "Deze actie kan niet worden uitgevoerd omdat je geen internet verbinding hebt.");
         }
-//        } else {
-//            Toast.makeText(
-//                    getApplicationContext(),
-//                    "Deze actie kan niet worden uitgevoerd omdat je geen internet verbinding hebt.",
-//                    Toast.LENGTH_SHORT).show();
-//        }
 
         return super.onOptionsItemSelected(item);
     }
@@ -240,7 +237,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void populateLogbook(String dateToday) {
         mRef = mDatabase.getReference("users/" + uid + "/Measurements/" + dateToday);
-
+        final ListView myList = findViewById(R.id.listView);
         measurementArray = new ArrayList<>();
 
         mRef.addValueEventListener(new ValueEventListener() {
@@ -249,7 +246,7 @@ public class MainActivity extends AppCompatActivity {
                 Iterator<DataSnapshot> iterator = dataSnapshot.getChildren().iterator();
                 Log.d(TAG, "Total Measurements: " + dataSnapshot.getChildrenCount());
 
-                ListView myList = findViewById(R.id.listView);
+
                 measurementArray.clear();
 
                 while (iterator.hasNext()) {
@@ -264,7 +261,7 @@ public class MainActivity extends AppCompatActivity {
 
                     measurementArray.add(newMeasurement);
 
-                    LogbookAdapter mAdapter = new LogbookAdapter(getApplicationContext(), measurementArray);
+                    MainLogbookAdapter mAdapter = new MainLogbookAdapter(getApplicationContext(), measurementArray);
                     myList.setAdapter(mAdapter);
                 }
             }
@@ -275,7 +272,20 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        myList.setLongClickable(true);
+        myList.setOnItemLongClickListener(longClickListener);
+
     }
+
+    AdapterView.OnItemLongClickListener longClickListener = new AdapterView.OnItemLongClickListener() {
+        @Override
+        public boolean onItemLongClick(AdapterView<?> adapterView, View view, int position, long id) {
+
+            LoginActivity.Toaster(MainActivity.this, "You long clicked on " + position + " " + id);
+
+            return true;
+        }
+    };
 
     public void datePicker(View view) {
         myCalendar = Calendar.getInstance();
@@ -381,13 +391,19 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    /**
+     * This is the onClick listener for the go to logbook button. If you're not connected, you can't
+     * use this button.
+     */
     public void goToLogbook(View view) {
         if (isConnected) {
             Intent intent = new Intent(this, LogbookActivity.class);
             finish();
             startActivity(intent);
+        } else {
+            LoginActivity.Toaster(
+                    MainActivity.this,
+                    "Deze actie kan niet worden uitgevoerd omdat je geen internet verbinding hebt.");
         }
-
     }
-
 }
