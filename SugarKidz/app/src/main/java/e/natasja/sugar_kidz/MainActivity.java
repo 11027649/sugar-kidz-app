@@ -259,7 +259,7 @@ public class MainActivity extends AppCompatActivity {
 
                     timeMeasurement = measurement.getKey();
                     SimpleMeasurement simple = measurement.getValue(SimpleMeasurement.class);
-                    Measurement newMeasurement = new Measurement(simple.getLabel(), dateToday, timeMeasurement, simple.getHeight());
+                    Measurement newMeasurement = new Measurement(simple.label, dateToday, timeMeasurement, simple.height);
 
                     measurementArray.add(newMeasurement);
                 }

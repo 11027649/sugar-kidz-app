@@ -218,7 +218,7 @@ public class LogbookActivity extends AppCompatActivity {
 
                         // get label and height
                         SimpleMeasurement simple = measurement.getValue(SimpleMeasurement.class);
-                        Measurement newMeasurement = new Measurement(simple.getLabel(), "Today", timeMeasurement, simple.getHeight());
+                        Measurement newMeasurement = new Measurement(simple.label, "Today", timeMeasurement, simple.height);
 
                         mAdapter.addItem(newMeasurement);
                     }
