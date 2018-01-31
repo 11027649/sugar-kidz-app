@@ -4,19 +4,17 @@ import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.Network;
+import android.net.NetworkInfo;
 import android.net.NetworkRequest;
-import android.os.Build;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.DatePicker;
 import android.widget.EditText;
@@ -24,7 +22,6 @@ import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.TimePicker;
-import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -39,7 +36,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
@@ -57,9 +53,13 @@ public class MainActivity extends AppCompatActivity {
 
     String uid;
 
-    private FirebaseDatabase mDatabase;
     private DatabaseReference mRef;
 
+    public static ConnectionInterface delegate = null;
+    private ConnectivityManager connectivityManager;
+    private NetworkRequest.Builder builder;
+
+    Boolean isInFront;
     Boolean isParent;
     Boolean isConnected;
 
@@ -72,12 +72,17 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        isConnected = false;
-        checkConnectivity();
-
         FirebaseAuth mAuth = FirebaseAuth.getInstance();
-        mDatabase = FirebaseDatabase.getInstance();
 
+        connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        builder = new NetworkRequest.Builder();
+        isInFront = true;
+
+        // check current status of network connection and start a connection listener
+        checkConnectionOnce();
+        setConnectionListener();
+
+        // check if user is logged in
         if (mAuth.getCurrentUser() == null) {
             Intent unauthorized = new Intent(MainActivity.this, LoginActivity.class);
             finish();
@@ -90,56 +95,74 @@ public class MainActivity extends AppCompatActivity {
             mRef.addListenerForSingleValueEvent(isParentListener);
 
             setDate();
-            populateLogbook(dateToday);
+            populateLogbook();
             populateSpinner();
         }
 
     }
 
     @Override
-    protected void onStart() {
-        super.onStart();
-
-        setConnectionInfo();
+    protected void onResume() {
+        super.onResume();
+        // save isInFront state
+        isInFront = true;
     }
 
-    private void setConnectionInfo() {
-        TextView connected = findViewById(R.id.connectionStatus);
-        if (!isConnected) {
-            String notConnected = "Gebruikersprofiel: onbekend (Niet verbonden)";
-            connected.setText(notConnected);
-            connected.setTextColor(Color.RED);
-        } else {
-            String connectedString = "Gebruikersprofiel: Natasja (Verbonden)";
-            connected.setText(connectedString);
-            connected.setTextColor(Color.GREEN);
-        }
+    @Override
+    public void onPause() {
+        // save isInFront state
+        super.onPause();
+        isInFront = false;
     }
 
     /**
-     * This is a function that checks whether you're connected to the internet: if you're not, it
-     * sends you back to the MainActivity, but disables all further actions.
+     * This method checks the connection if this Activity is opened.
      */
-    private void checkConnectivity() {
-        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkRequest.Builder builder = new NetworkRequest.Builder();
+    private void checkConnectionOnce() {
+        // call internet status check
+        isConnected = isNetworkAvailable();
+    }
 
+    /**
+     * Check the internet status.
+     */
+    private boolean isNetworkAvailable() {
+        // instantiate a ConnectivityManager
+        connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = null;
+
+        if (connectivityManager != null) {
+            // get network info
+            activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        }
+
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+    }
+
+    /**
+     * This function listens to the Network Connection. If the user is in another activity than the
+     * Main Activity when the connection is lost, this function will close that activity via an
+     * Interface. The functionality of the app is disable untill you have a connection again.
+     */
+    private void setConnectionListener() {
+        // this method sets a internet connection change listener
         connectivityManager.registerNetworkCallback(
                 builder.build(),
                 new ConnectivityManager.NetworkCallback() {
+
                     @Override
                     public void onAvailable(Network network) {
+                        // when the network is available again, enable navigation
                         isConnected = true;
-//                        setConnectionInfo();
                     }
                     @Override
                     public void onLost(Network network) {
                         isConnected = false;
-                        Intent connectionLost = new Intent(getApplicationContext(), MainActivity.class);
-                        finish();
-                        startActivity(connectionLost);
 
-                        LoginActivity.Toaster(getApplicationContext(), "Internet verbinding onderbroken.");
+                        // network unavailable, go back to MainActivity from current activity via ConnectionInterface
+                        if (!isInFront) {
+                            delegate.closeActivity();
+                        }
                     }
                 }
         );
@@ -151,6 +174,8 @@ public class MainActivity extends AppCompatActivity {
      */
     public void populateSpinner() {
         Spinner moments = findViewById(R.id.labelMeasurement);
+
+        // set the moments array to the adapter
         ArrayAdapter<CharSequence> momentsAdapter = ArrayAdapter.createFromResource(
                 this,
                 R.array.moments,
@@ -160,13 +185,13 @@ public class MainActivity extends AppCompatActivity {
         moments.setAdapter(momentsAdapter);
     }
 
+    /**
+     * This ValueEventListener checks if the user that is in this Activity is a parent or not.
+     */
     ValueEventListener isParentListener = new ValueEventListener() {
        @Override
        public void onDataChange(DataSnapshot dataSnapshot) {
-           // This method is called once with the initial value and again
-           // whenever data at this location is updated.
            isParent = (boolean) dataSnapshot.child("isParent").getValue();
-           Log.d(TAG, "Value is: " + isParent);
 
            if (isParent) {
                Intent unauthorized = new Intent(MainActivity.this, LogbookActivity.class);
@@ -176,7 +201,6 @@ public class MainActivity extends AppCompatActivity {
        }
        @Override
        public void onCancelled(DatabaseError error) {
-           // Failed to read value
            Log.w(TAG, "Failed to read value.", error.toException());
        }
    };
@@ -191,6 +215,7 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
 
+        // disable navigation if the connection is lost
         if (isConnected) {
             switch(id) {
                 case (R.id.menu_couple):
@@ -223,6 +248,10 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    /**
+     * This function gets the date and time of right now and displays it in the date and time
+     * TextViews to the user. These are the default date and time that belong to a measurement.
+     */
     public void setDate() {
         date = findViewById(R.id.date);
         time = findViewById(R.id.time);
@@ -238,60 +267,68 @@ public class MainActivity extends AppCompatActivity {
         time.setText(timeToday);
     }
 
-    public void populateLogbook(final String dateToday) {
-        mRef = mDatabase.getReference("users/" + uid + "/Measurements/" + dateToday);
+    /**
+     * This function populates the ListView with Measurements of today. If there are no measurements
+     * yet it will display a "There are no Measurements yet" in the listview.
+     */
+    public void populateLogbook() {
+        mRef = FirebaseDatabase.getInstance().getReference("users/" + uid + "/Measurements/" + dateToday);
         myList = findViewById(R.id.listView);
         measurementArray = new ArrayList<>();
 
-        mRef.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange (DataSnapshot dataSnapshot) {
-                Iterator<DataSnapshot> iterator = dataSnapshot.getChildren().iterator();
-                Log.d(TAG, "Total Measurements: " + dataSnapshot.getChildrenCount());
-
-                measurementArray.clear();
-
-                while (iterator.hasNext()) {
-                    DataSnapshot measurement = iterator.next();
-                    Log.d(TAG, String.valueOf(measurement.getChildrenCount()));
-
-                    String timeMeasurement;
-
-                    timeMeasurement = measurement.getKey();
-                    SimpleMeasurement simple = measurement.getValue(SimpleMeasurement.class);
-                    Measurement newMeasurement = new Measurement(simple.label, dateToday, timeMeasurement, simple.height);
-
-                    measurementArray.add(newMeasurement);
-                }
-
-                if (measurementArray.isEmpty()) {
-                    Measurement noMeasurementsYet = new Measurement("Nog geen metingen vandaag");
-                    measurementArray.add(noMeasurementsYet);
-                } else {
-                    Collections.reverse(measurementArray);
-                    setLastMeasurement();
-                }
-
-                MainLogbookAdapter mAdapter = new MainLogbookAdapter(MainActivity.this, measurementArray);
-                myList.setAdapter(mAdapter);
-                mAdapter.deleteOnLongClick(myList);
-            }
-
-            @Override
-            public void onCancelled(DatabaseError error) {
-                Log.w(TAG, "Failed to read value.", error.toException());
-            }
-        });
-
-
-
-
+        mRef.addValueEventListener(measurementsListener);
     }
 
+    /**
+     * This ValueEventListener adds the measurements from today to a List and gives that to the
+     * MainLogbookAdapter.
+     */
+    ValueEventListener measurementsListener = new ValueEventListener() {
+        @Override
+        public void onDataChange (DataSnapshot dataSnapshot) {
+            measurementArray.clear();
+
+            for (DataSnapshot measurement : dataSnapshot.getChildren()) {
+                String timeMeasurement = measurement.getKey();
+                SimpleMeasurement simple = measurement.getValue(SimpleMeasurement.class);
+
+                if (simple != null) {
+                    Measurement newMeasurement = new Measurement(simple.label, dateToday, timeMeasurement, simple.height);
+                    measurementArray.add(newMeasurement);
+                }
+            }
+
+            if (measurementArray.isEmpty()) {
+                // there are no measurements yet today
+                Measurement noMeasurementsYet = new Measurement("Nog geen metingen vandaag");
+                measurementArray.add(noMeasurementsYet);
+            } else {
+                // reverse the array to show the newest measurement the highest in the listview
+                Collections.reverse(measurementArray);
+                setLastMeasurement();
+            }
+
+            MainLogbookAdapter mAdapter = new MainLogbookAdapter(MainActivity.this, measurementArray);
+            // set long click listener on the list and add the adapter
+            mAdapter.deleteOnLongClick(myList);
+            myList.setAdapter(mAdapter);
+        }
+
+        @Override
+        public void onCancelled(DatabaseError error) {
+            Log.w(TAG, "Failed to read value.", error.toException());
+        }
+    };
+
+    /**
+     * This Measurement sets the last measurement from today in the MainActivity. If there's no
+     * measurement from today, it'll say that there are no measurements yet.
+     */
     private void setLastMeasurement() {
         TextView date = findViewById(R.id.lastMeasurementDate);
         TextView height = findViewById(R.id.lastMeasurementHeight);
 
+        // get the first measurement from the array: this is the last one
         Measurement lastMeasurement = measurementArray.get(0);
 
         String dateString = lastMeasurement.dateMeasurement + ", " + lastMeasurement.timeMeasurement;
@@ -301,41 +338,56 @@ public class MainActivity extends AppCompatActivity {
         height.setText(heightString);
     }
 
+    /**
+     * When the edit pencil behind the date is clicked, open a datepicker. If a date is picked,
+     * display that date in the date TextView.
+     */
     public void datePicker(View view) {
         myCalendar = Calendar.getInstance();
 
+        // get the year, month and day of today
         int year = myCalendar.get(Calendar.YEAR);
         int month = myCalendar.get(Calendar.MONTH);
         int day = myCalendar.get(Calendar.DAY_OF_MONTH);
 
-        DatePickerDialog mDatePicker;
-        mDatePicker = new DatePickerDialog(MainActivity.this, new DatePickerDialog.OnDateSetListener() {
+        DatePickerDialog mDatePicker = new DatePickerDialog(MainActivity.this,
+                new DatePickerDialog.OnDateSetListener() {
+
             public void onDateSet(DatePicker datePicker, int year, int month, int day) {
+                // set the date in the calendar to the selected day
                 myCalendar.set(Calendar.YEAR, year);
                 myCalendar.set(Calendar.MONTH, month);
                 myCalendar.set(Calendar.DAY_OF_MONTH, day);
 
+                // show the picked date to the user
                 date.setText(dateSDF.format(myCalendar.getTime()));
             }
         }, year, month, day);
+
         mDatePicker.setTitle("Kies de datum van je meting");
         mDatePicker.show();
-
     }
 
+    /**
+     * When the edit pencil behind the date is clicked, open a timepicker. If a time is picked,
+     * display that time in the time TextView.
+     */
     public void timePicker(View view) {
         myCalendar = Calendar.getInstance();
 
+        // get the hour and minute of today, right now
         int hour = myCalendar.get(Calendar.HOUR_OF_DAY);
         int minute = myCalendar.get(Calendar.MINUTE);
 
-        TimePickerDialog mTimePicker;
+        TimePickerDialog mTimePicker = new TimePickerDialog(MainActivity.this,
+                new TimePickerDialog.OnTimeSetListener() {
 
-        mTimePicker = new TimePickerDialog(MainActivity.this, new TimePickerDialog.OnTimeSetListener() {
             public void onTimeSet(TimePicker timePicker, int selectedHour, int selectedMinute) {
+                // set the time in the calendar to the selected time
                 myCalendar.set(Calendar.HOUR_OF_DAY, selectedHour);
                 myCalendar.set(Calendar.MINUTE, selectedMinute);
 
+                // show the picked time to the user
                 time.setText(timeSDF.format(myCalendar.getTime()));
             }
         }, hour, minute, true);
@@ -344,63 +396,116 @@ public class MainActivity extends AppCompatActivity {
         mTimePicker.show();
     }
 
+    /**
+     * This function adds the Measurement the user just added to the Database.
+     * It's the onclick listener of the OK button.
+     */
     public void addMeasurement(View view) {
-        TextView dateTextView = findViewById(R.id.date);
-        TextView timeTextView = findViewById(R.id.time);
-        Spinner labelSpinner = findViewById(R.id.labelMeasurement);
-        EditText heightMeasurement = findViewById(R.id.hightMeasurement);
 
-        final String timeMeasurement = timeTextView.getText().toString();
-        final String dateMeasurement = dateTextView.getText().toString();
-        final String label = labelSpinner.getSelectedItem().toString();
-        final String height = heightMeasurement.getText().toString();
+        // disable navigation if you're not connected
+        if (isConnected ) {
+            TextView dateTextView = findViewById(R.id.date);
+            TextView timeTextView = findViewById(R.id.time);
+            Spinner labelSpinner = findViewById(R.id.labelMeasurement);
+            EditText heightMeasurement = findViewById(R.id.hightMeasurement);
 
-        if (height.equals("")) {
-            Toast.makeText(this, "Vul de hoogte van je bloedsuiker in!", Toast.LENGTH_SHORT).show();
+            final String timeMeasurement = timeTextView.getText().toString();
+            final String dateMeasurement = dateTextView.getText().toString();
+            final String label = labelSpinner.getSelectedItem().toString();
+            final String height = heightMeasurement.getText().toString();
+
+            if (height.equals("")) {
+                LoginActivity.Toaster(this, "Vul de hoogte van je bloedsuiker in!");
+            } else {
+                mRef = FirebaseDatabase.getInstance().getReference("users/" + uid + "/Measurements");
+                SimpleMeasurement simple = new SimpleMeasurement(label, height);
+
+                // check if there's already a measurement at this time (to make sure a user can't
+                // keep submitting at the same minute for XP)
+                checkIfTimeAlreadyExists(simple, timeMeasurement, dateMeasurement);
+            }
         } else {
-
-            mRef = mDatabase.getReference("users/" + uid);
-            SimpleMeasurement simple = new SimpleMeasurement(label, height);
-
-            // add this measurement to firebase (if there isn't a measurement yet at this time)
-            mRef.child("Measurements").child(dateMeasurement).child(timeMeasurement).setValue(simple).addOnCompleteListener(new OnCompleteListener<Void>() {
-                @Override
-                public void onComplete(@NonNull Task<Void> task) {
-                    if (!task.isSuccessful()){
-                        Log.w(TAG, "Exception occured: " + task.getException());
-                        Toast.makeText(getApplicationContext(), "Iets ging fout... :(", Toast.LENGTH_SHORT).show();
-                    } else {
-                        Toast.makeText(MainActivity.this, "Je hebt deze meting toegevoegd!", Toast.LENGTH_SHORT).show();
-                        gainXP();
-                    }
-                }
-            });
+            LoginActivity.Toaster(
+                    MainActivity.this,
+                    "Je kan geen metingen toevoegen omdat je geen internet verbinding hebt.");
         }
     }
 
-    public void gainXP() {
-
-        final ValueEventListener listener = new ValueEventListener() {
+    /**
+     * This is a function that adds a listener to the firebase
+     */
+    public void checkIfTimeAlreadyExists(final SimpleMeasurement simple, final String time, final String date) {
+        ValueEventListener existListener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                // This method is called once with the initial value and again
-                // whenever data at this location is updated.
 
+                // check if there's already a measurement at this minute
+                String check = String.valueOf(dataSnapshot.child(date).child(time).getValue());
+
+                // if it's false, it doesn't exist yet
+                if (check.equals("null")) {
+                    addMeasurementToFirebase(simple, time, date);
+                } else {
+                    LoginActivity.Toaster(
+                            MainActivity.this,
+                            "Je hebt op dit tijdstip al een meting toegevoegd.");
+                }
+            }
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.w(TAG, "Failed to read value");
+            }
+        };
+
+        mRef.addListenerForSingleValueEvent(existListener);
+    }
+
+    /**
+     * Add the Measurement to Firebase.
+     */
+    public void addMeasurementToFirebase(SimpleMeasurement simple, String time, String date) {
+        // add the Measurement to Firebase
+        // add this measurement to firebase (if there isn't a measurement yet at this time)
+        mRef.child(date).child(time).setValue(simple)
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (!task.isSuccessful()) {
+                            Log.w(TAG, "Exception occured: " + task.getException());
+                            LoginActivity.Toaster(getApplicationContext(), "Iets ging fout... :(");
+                        } else {
+                            // if adding went fine, add 100 XP to the user's XP
+                            LoginActivity.Toaster(MainActivity.this, "Je hebt deze meting toegevoegd!");
+
+                            mRef = FirebaseDatabase.getInstance().getReference("users/" + uid);
+                            gainXP();
+                        }
+                    }
+                });
+    }
+
+    /**
+     * This function searches to the amount of XP of the user in the database and adds 100 XP to it
+     * when a measurement is added.
+     */
+    public void gainXP() {
+        ValueEventListener listener = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
                 Long XPamount = (long) dataSnapshot.child("xpAmount").getValue();
-                Log.d(TAG, "XPAmount is: " + XPamount);
 
+                // if the XP is loaded, add the XP and set the value to the new xp amount
                 Long XPamountNew = XPamount + 100;
                 mRef.child("xpAmount").setValue(XPamountNew);
             }
 
             @Override
             public void onCancelled(DatabaseError error) {
-                // Failed to read value
                 Log.w(TAG, "Failed to read value.", error.toException());
             }
         };
 
-        // Read from the database
+
         mRef.addListenerForSingleValueEvent(listener);
 
     }

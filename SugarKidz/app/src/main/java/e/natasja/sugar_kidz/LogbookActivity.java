@@ -26,17 +26,20 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.Iterator;
 
-public class LogbookActivity extends AppCompatActivity {
-    Boolean isParent;
-
+public class LogbookActivity extends AppCompatActivity implements ConnectionInterface {
     private static final String TAG = "LogbookActivity";
-    private LogbookAdapter mAdapter;
-
-    String uid;
-    String kidID;
 
     DatabaseReference mRef;
+    String uid;
 
+    String kidUsername;
+    String kidID;
+
+    private LogbookAdapter mAdapter;
+
+    public static MainActivity delegate = null;
+
+    Boolean isParent;
     Boolean notificationNeeded;
 
     @Override
@@ -47,45 +50,30 @@ public class LogbookActivity extends AppCompatActivity {
         FirebaseAuth mAuth = FirebaseAuth.getInstance();
         FirebaseUser aUser = mAuth.getCurrentUser();
 
+        MainActivity.delegate = this;
+
+        // check if the user is logged in and if the user is a parent
         if (aUser == null) {
             Intent unauthorized = new Intent(this, LoginActivity.class);
             finish();
             startActivity(unauthorized);
         } else {
             uid = aUser.getUid();
+
+            // set the notifications to true if the listview is loaded and the user is a parent
             notificationNeeded = false;
 
-            mRef = FirebaseDatabase.getInstance().getReference("users/" + uid);
-
             // check if user is a parent or a kid
+            mRef = FirebaseDatabase.getInstance().getReference("users/" + uid);
             mRef.addListenerForSingleValueEvent(isParentListener);
 
         }
     }
 
-    ValueEventListener isParentListener = new ValueEventListener() {
-        @Override
-        public void onDataChange(DataSnapshot dataSnapshot) {
-            isParent = (boolean) dataSnapshot.child("isParent").getValue();
-            Log.d(TAG, "Value is: " + isParent);
-
-            if (isParent) {
-                checkIfCoupled();
-            } else {
-                doKidStuff();
-            }
-        }
-
-        @Override
-        public void onCancelled(DatabaseError error) {
-            // failed to read value
-            Log.w(TAG, "Failed to read value.", error.toException());
-        }
-    };
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
+            // if the kid clicks on back, go to Main, the parents can't see and use this button
             case android.R.id.home:
                 Intent intent = new Intent(LogbookActivity.this, MainActivity.class);
                 startActivity(intent);
@@ -97,7 +85,46 @@ public class LogbookActivity extends AppCompatActivity {
         }
     }
 
-    public void doKidStuff() {
+    @Override
+    public void closeActivity() {
+        // when the internet connection is lost, finish this activity and go back to Main
+        // (if the user is not a parent)
+        if (!isParent) {
+            finish();
+        } else {
+            LoginActivity.Toaster(
+                    LogbookActivity.this,
+                    "Je internetverbinding is verbroken");
+        }
+    }
+
+    /**
+     * This ValueEventListener listens to if the user is a parent, and chooses what UI to set
+     * depending on if you're a coupled or uncoupled parent, or a kid.
+     */
+    ValueEventListener isParentListener = new ValueEventListener() {
+        @Override
+        public void onDataChange(DataSnapshot dataSnapshot) {
+            isParent = (boolean) dataSnapshot.child("isParent").getValue();
+            Log.d(TAG, "Value is: " + isParent);
+
+            if (isParent) {
+                checkIfCoupled();
+            } else {
+                setKidUI();
+            }
+        }
+        @Override
+        public void onCancelled(DatabaseError error) {
+            // failed to read value
+            Log.w(TAG, "Failed to read value.", error.toException());
+        }
+    };
+
+    /**
+     * This function sets the page layout for the kid (user) to use it.
+     */
+    public void setKidUI() {
         TextView backbutton = findViewById(R.id.navigate);
         backbutton.setVisibility(View.INVISIBLE);
 
@@ -111,137 +138,71 @@ public class LogbookActivity extends AppCompatActivity {
         populateListView(uid);
     }
 
-    public void setUncoupledParentUI() {
-        // set back button invisible and disable navigation
-        TextView backbutton = findViewById(R.id.navigate);
-        String backbuttonText = "Nog geen account gekoppeld. Klik hier om een account te koppelen.";
-        backbutton.setText(backbuttonText);
-
-        TextView logoutParent = findViewById(R.id.parentLogout);
-        logoutParent.setVisibility(View.VISIBLE);
-    }
-
-    public void setCoupledParentUI(String kidID) {
-        // set back button invisible and disable navigation
-        TextView backbutton = findViewById(R.id.navigate);
-        String backbuttonText = "Je account is gekoppeld aan: " + kidID;
-        backbutton.setText(backbuttonText);
-
-        TextView logoutParent = findViewById(R.id.parentLogout);
-        logoutParent.setVisibility(View.VISIBLE);
-
-        DatabaseReference mRef = FirebaseDatabase.getInstance().getReference("users/" + kidID + "/Measurements");
-        mRef.addValueEventListener(kidAddsMeasurementListener);
-    }
-
-    public void sendNotification() {
-
-        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this, "Bae")
-                .setSmallIcon(R.drawable.meter3)
-                .setContentTitle("Nieuwe meting beschikbaar")
-                .setContentText("Je kind heeft een nieuwe meting toegevoegd!");
-
-        Intent resultIntent = new Intent(this, LogbookActivity.class);
-
-        PendingIntent resultPendingIntent =
-                PendingIntent.getActivity(
-                        this,
-                        0,
-                        resultIntent,
-                        PendingIntent.FLAG_UPDATE_CURRENT);
-
-        mBuilder.setContentIntent(resultPendingIntent);
-
-        mBuilder.setLights(Color.BLUE, 500, 500);
-        long[] pattern = {500,500,500,500,500,500,500,500,500};
-        mBuilder.setVibrate(pattern);
-        Uri alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-        mBuilder.setSound(alarmSound);
-
-        int mNotificationId = 1;
-        NotificationManager mManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-        mManager.notify(mNotificationId, mBuilder.build());
-    }
-
+    /**
+     * If the user is a parent, checks if it is coupled to an Account from a kid.
+     */
     public void checkIfCoupled() {
-        DatabaseReference mRef = FirebaseDatabase.getInstance().getReference("users/" + uid + "/coupled");
+        mRef = FirebaseDatabase.getInstance().getReference("users/" + uid + "/coupled");
 
-        mRef.addListenerForSingleValueEvent(new ValueEventListener() {
+        // this listener checks in firebase if you're coupled to a kid, and if yes, what there uid is
+        ValueEventListener isCoupledListener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 String coupledTo = String.valueOf(dataSnapshot.getValue());
                 if (coupledTo.equals("false")){
                     setUncoupledParentUI();
                 } else {
-                    kidID = coupledTo;
-                    setCoupledParentUI(coupledTo);
+                    kidID = String.valueOf(dataSnapshot.child("kidID").getValue());
+                    kidUsername = String.valueOf(dataSnapshot.child("kidName").getValue());
+                    setCoupledParentUI();
                 }
             }
             @Override
             public void onCancelled(DatabaseError databaseError) {
                 Log.w(TAG, "Failed to read data from database.");
             }
-        });
+        };
+
+        mRef.addListenerForSingleValueEvent(isCoupledListener);
     }
 
-    public void populateListView(String uidToDisplay) {
-        mAdapter = new LogbookAdapter(this);
+    /**
+     * Set the LayOut for the uncoupled parent. They can't see any measurements, but can go to the
+     * couple activity to couple their account to their kid's.
+     */
+    public void setUncoupledParentUI() {
+        // use the "backbutton" to navigate to the couple activity
+        TextView backbutton = findViewById(R.id.navigate);
+        String backbuttonText = "Klik hier om een account te koppelen.";
+        backbutton.setText(backbuttonText);
 
-        FirebaseDatabase mDatabase = FirebaseDatabase.getInstance();
-
-        final DatabaseReference mDatabaseRef = mDatabase.getReference("users/" + uidToDisplay + "/Measurements");
-        Query myTopSolvedQuery = mDatabaseRef.orderByChild("Measurements");
-
-        myTopSolvedQuery.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange (DataSnapshot dataSnapshot) {
-               // iterate over dates
-                Iterator<DataSnapshot> dateIterator = dataSnapshot.getChildren().iterator();
-
-                while (dateIterator.hasNext()) {
-                    DataSnapshot measurements = dateIterator.next();
-                    Log.d(TAG, String.valueOf(measurements.getChildrenCount()));
-
-                    // get date
-                    String dateMeasurement = measurements.getKey();
-                    mAdapter.addSectionHeaderItem(dateMeasurement);
-
-                    // iterate over measurements at that date
-                    Iterator<DataSnapshot> measurementIterator = dataSnapshot.child(dateMeasurement).getChildren().iterator();
-                    Log.d(TAG, String.valueOf(measurements.getChildrenCount()));
-
-                    while (measurementIterator.hasNext()) {
-                        DataSnapshot measurement = measurementIterator.next();
-
-                        // get time of measurement
-                        String timeMeasurement = measurement.getKey();
-
-                        // get label and height
-                        SimpleMeasurement simple = measurement.getValue(SimpleMeasurement.class);
-                        Measurement newMeasurement = new Measurement(simple.label, "Today", timeMeasurement, simple.height);
-
-                        mAdapter.addItem(newMeasurement);
-                    }
-                }
-
-                // if you're a kid you don't need notifications
-                // set notification needed to true after populating the listview to make sure it doesn't
-                // send you a notification the moment you open the app
-                if (isParent) {
-                    notificationNeeded = true;
-                }
-
-                ListView mListView = findViewById(R.id.totalLogbookListView);
-                mListView.setAdapter(mAdapter);
-            }
-
-            @Override
-            public void onCancelled(DatabaseError error) {
-                Log.w(TAG, "Failed to read value.");
-            }
-        });
+        // make sure the parent can logout
+        TextView logoutParent = findViewById(R.id.parentLogout);
+        logoutParent.setVisibility(View.VISIBLE);
     }
 
+    /**
+     * The coupled parent can see the measurements from the kids account in the ListView.
+     */
+    public void setCoupledParentUI() {
+        // set button to what kid you're coupled to
+        TextView backbutton = findViewById(R.id.navigate);
+        String backbuttonText = "Je account is gekoppeld aan: " + kidUsername;
+        backbutton.setText(backbuttonText);
+
+        // make sure the parent can logout
+        TextView logoutParent = findViewById(R.id.parentLogout);
+        logoutParent.setVisibility(View.VISIBLE);
+
+        // add a listener to the firebase of the kid, to get a notification after they add a new measurement
+        DatabaseReference mRef = FirebaseDatabase.getInstance().getReference("users/" + kidID + "/Measurements");
+        mRef.addValueEventListener(kidAddsMeasurementListener);
+    }
+
+    /**
+     * This is a ValueEventListener that gives a notification if the kid adds a measurement.
+     * It also populates the ListView again.
+     */
     public ValueEventListener kidAddsMeasurementListener = new ValueEventListener() {
         @Override
         public void onDataChange(DataSnapshot dataSnapshot) {
@@ -257,7 +218,109 @@ public class LogbookActivity extends AppCompatActivity {
         }
     };
 
-    public void goToMain(View view) {
+    /**
+     * This function builds a notification to send to the parent as their kid adds a new measurement.
+     * If you click on a notification you'll be send to the logbookactivity.
+     */
+    public void sendNotification() {
+        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this, "001")
+                .setSmallIcon(R.drawable.meter3)
+                .setContentTitle("Nieuwe meting beschikbaar")
+                .setContentText("Je kind heeft een nieuwe meting toegevoegd!");
+
+        // prepare the intent
+        Intent resultIntent = new Intent(this, LogbookActivity.class);
+        PendingIntent resultPendingIntent = PendingIntent.getActivity(
+                        this,
+                        0,
+                        resultIntent,
+                        PendingIntent.FLAG_UPDATE_CURRENT);
+
+        // set the intent
+        mBuilder.setContentIntent(resultPendingIntent);
+
+        // prepare the vibration and lights pattern for the notification
+        mBuilder.setLights(Color.BLUE, 500, 500);
+        long[] pattern = {500,500,500,500,500,500};
+        mBuilder.setVibrate(pattern);
+        Uri alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+        mBuilder.setSound(alarmSound);
+
+        int mNotificationId = 1;
+        NotificationManager mManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+
+        // build and send the actual notfication
+        mManager.notify(mNotificationId, mBuilder.build());
+    }
+
+    /**
+     * This function populates the ListView. It takes an UID as input, because it needs to know
+     * with what measurements the ListView should be populated (as there's a parent logged in, it
+     * needs to have the kid's uid, not the parents, while as the kid's logged in, it needs the
+     * 'normal' uid.
+     */
+    public void populateListView(String uidToDisplay) {
+        mAdapter = new LogbookAdapter(this);
+
+        FirebaseDatabase mDatabase = FirebaseDatabase.getInstance();
+
+        mRef = mDatabase.getReference("users/" + uidToDisplay + "/Measurements");
+        mRef.addListenerForSingleValueEvent(measurementListener);
+    }
+
+    /**
+     * This Value Event Listener adds the measurements of today to a list and sets the adapter to
+     * the ListView if that is done.
+     */
+    ValueEventListener measurementListener = new ValueEventListener() {
+        @Override
+        public void onDataChange (DataSnapshot dataSnapshot) {
+            // iterate over dates
+            for (DataSnapshot measurements : dataSnapshot.getChildren()) {
+                // get date
+                String dateMeasurement = measurements.getKey();
+                mAdapter.addSectionHeaderItem(dateMeasurement);
+
+                // iterate over measurements at that date
+                for (DataSnapshot measurement : dataSnapshot.child(dateMeasurement).getChildren()) {
+                    // get time of measurement
+                    String timeMeasurement = measurement.getKey();
+
+                    // get label and height
+                    SimpleMeasurement simple = measurement.getValue(SimpleMeasurement.class);
+                    Measurement newMeasurement = null;
+
+                    if (simple != null) {
+                        newMeasurement = new Measurement(simple.label, "Today", timeMeasurement, simple.height);
+                    }
+                    mAdapter.addItem(newMeasurement);
+                }
+            }
+
+            // if you're a kid you don't need notifications
+            // set notification needed to true after populating the listview to make sure it doesn't
+            // send you a notification the moment you open the app
+            if (isParent) {
+                notificationNeeded = true;
+            }
+
+            ListView mListView = findViewById(R.id.totalLogbookListView);
+            mListView.setAdapter(mAdapter);
+            mListView.setSelection(mAdapter.getCount() - 1);
+        }
+
+        @Override
+        public void onCancelled(DatabaseError error) {
+            Log.w(TAG, "Failed to read value.");
+        }
+    };
+
+    /**
+     * This is the onClick listener of the button. It sends the parent to the couple activity.
+     * Also if the parent is already coupled. They can couple their account to another account
+     * overwriting the account that they're already coupled to.
+     */
+    public void goToCouple(View view) {
         if (isParent) {
             // if you're a parent, this is the couple button: so go to couple activity
             Intent toLogbook = new Intent(this, CoupleActivity.class);
@@ -266,6 +329,9 @@ public class LogbookActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * This is the LogoutButton listener, it only listens to parent clicks.
+     */
     public void logout(View view) {
         if (isParent) {
             FirebaseAuth mAuth = FirebaseAuth.getInstance();

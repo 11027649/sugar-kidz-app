@@ -49,17 +49,20 @@ import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-public class PokeshopActivity extends AppCompatActivity {
-
-    RequestQueue serialRequestQueue;
+public class PokeshopActivity extends AppCompatActivity implements ConnectionInterface {
     private static String TAG = "PokeshopActivity";
+
+    FirebaseAuth mAuth;
+    DatabaseReference mRef;
+
+    String uid;
 
     ArrayList<Pokemon> pokemons;
     ArrayList<Integer> ownedPokemons;
 
-    String uid;
-    FirebaseAuth mAuth;
-    DatabaseReference mRef;
+    public static MainActivity delegate = null;
+
+    TextView XPAmountTextView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,6 +72,10 @@ public class PokeshopActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
         FirebaseUser aUser = mAuth.getCurrentUser();
 
+        // internet connection triggers closing of all activities except MainActivity
+        MainActivity.delegate = this;
+
+        // check if user is already logged in
         if (aUser == null) {
             Intent intent = new Intent(PokeshopActivity.this, MainActivity.class);
             finish();
@@ -88,6 +95,12 @@ public class PokeshopActivity extends AppCompatActivity {
     }
 
     @Override
+    public void closeActivity() {
+        // when the internet connection is lost, finish this activity
+        finish();
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
@@ -101,49 +114,57 @@ public class PokeshopActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Load all the Pokemons from FireBase by looping through the "Pokemons" branch.
+     */
     public void showPokemons() {
         mRef = FirebaseDatabase.getInstance().getReference("pokemons");
 
-        mRef.addListenerForSingleValueEvent(new ValueEventListener() {
+        ValueEventListener allPokemonsListener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                Iterator<DataSnapshot> mIterator = dataSnapshot.getChildren().iterator();
-
                 pokemons.clear();
 
-                while (mIterator.hasNext()) {
-                    DataSnapshot datasnap = mIterator.next();
+                for (DataSnapshot datasnap : dataSnapshot.getChildren()) {
                     Pokemon pokemon = datasnap.getValue(Pokemon.class);
                     pokemons.add(pokemon);
-
-                    checkIfOwned();
                 }
+
+                // loading all the pokemons is complete, now check which ones the user owns
+                checkIfOwned();
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
                 Log.w(TAG, "Not able to load pokemons from Firebase");
             }
-        });
+        };
+
+        mRef.addListenerForSingleValueEvent(allPokemonsListener);
     }
 
+    /**
+     * Adds a Listener to the FireBase to check if a pokemon is owned by the user.
+     */
     private void checkIfOwned() {
         mRef = FirebaseDatabase.getInstance().getReference("users/" + uid + "/Pokemons/");
         mRef.addValueEventListener(isOwnedListener);
     }
 
+    /**
+     * This ValueEventListener loops through the owned pokemons in the FireBase and adds them to an
+     * array.
+     */
     private ValueEventListener isOwnedListener = new ValueEventListener() {
         @Override
         public void onDataChange(DataSnapshot dataSnapshot) {
-            Iterator<DataSnapshot> mIterator = dataSnapshot.getChildren().iterator();
-
-            while (mIterator.hasNext()) {
-                DataSnapshot pokemonNumber = mIterator.next();
-
+            for (DataSnapshot pokemonNumber : dataSnapshot.getChildren()) {
                 Integer pokemonNumberValue = Integer.valueOf(pokemonNumber.getKey());
                 ownedPokemons.add(pokemonNumberValue);
             }
 
+            // now the lists of all pokemons and the pokemons you own are complete,
+            // so you can show the list to the user now
             updateList();
         }
         @Override
@@ -153,10 +174,14 @@ public class PokeshopActivity extends AppCompatActivity {
         }
     };
 
+    /**
+     * This function sets the XP Amount TextView to show how much XP the user has.
+     */
     public void showXPAMount() {
         TextView XPTextView = findViewById(R.id.XP);
-        final TextView XPAmountTextView = findViewById(R.id.xpAmount);
+        XPAmountTextView = findViewById(R.id.xpAmount);
 
+        // add nice colors using Html
         String text =   "<font color='red'>X</font>" +
                 "<font color='orange'>P</font>" + " " +
                 "<font color='yellow'>A</font>" +
@@ -168,34 +193,35 @@ public class PokeshopActivity extends AppCompatActivity {
 
         XPTextView.setText(Html.fromHtml(text), TextView.BufferType.SPANNABLE);
 
-        FirebaseAuth mAuth = FirebaseAuth.getInstance();
-        String userID = mAuth.getCurrentUser().getUid();
-        DatabaseReference myRef = FirebaseDatabase.getInstance().getReference("users/" + userID + "/xpAmount");
-
-        // Read from the database
-        myRef.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                // This method is called once with the initial value and again
-                // whenever data at this location is updated.
-                Long xpAmount = (Long) dataSnapshot.getValue();
-
-                Log.d(TAG, "Value is: " + xpAmount);
-                XPAmountTextView.setText(String.valueOf(xpAmount));
-            }
-
-            @Override
-            public void onCancelled(DatabaseError error) {
-                // Failed to read value
-                Log.w(TAG, "Failed to read value.", error.toException());
-            }
-        });
+        // check how much xp you have in real time
+        mRef = FirebaseDatabase.getInstance().getReference("users/" + uid + "/xpAmount");
+        mRef.addValueEventListener(xpListener);
     }
 
+    /**
+     * This ValueEventLIstener checks how much XP the user has.
+     */
+    ValueEventListener xpListener = new ValueEventListener() {
+        @Override
+        public void onDataChange(DataSnapshot dataSnapshot) {
+            Long xpAmount = (Long) dataSnapshot.getValue();
+
+            Log.d(TAG, "Value is: " + xpAmount);
+            XPAmountTextView.setText(String.valueOf(xpAmount));
+        }
+        @Override
+        public void onCancelled(DatabaseError error) {
+            Log.w(TAG, "Failed to read value.", error.toException());
+        }
+    };
+
+    /**
+     * Update the List by instantiating the Pokeshop Adapter. It needs the two lists of all the
+     * Pokemons and owned Pokemons.
+     */
     public void updateList() {
         PokeshopAdapter adapter = new PokeshopAdapter(getApplicationContext(), pokemons, ownedPokemons);
         ListView pokemonlist = findViewById(R.id.pokemonListView);
-
         pokemonlist.setAdapter(adapter);
     }
 }

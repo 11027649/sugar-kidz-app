@@ -14,28 +14,33 @@
         completions."
     </string>
     <string name="Uitloggen">Klik hier om uit te loggen.</string>
-    <string name="ok">Ok</string>
+    <string name="ok">OK</string>
     <string name="sugar_kidz">Sugar Kidz!</string>
-    <string name="je_laatst_gemeten_bloedsuiker"> Je laatst gemeten bloedsuiker:</string>
+    <string name="je_laatst_gemeten_bloedsuiker"> Je laatst gemeten bloedsuiker</string>
     <string name="_11_januari_12_00">11 januari, 12:00</string>
     <string name="mmol_liter">mmol/Liter</string>
     <string name="je_metingen_van_vandaag"> Je metingen van vandaag</string>
     <string name="_12_39">12:39</string>
     <string name="stripes" />
     <string name="_4_2">4.2</string>
-    <string name="_15_01_18">15-01-18</string>
+    <string name="_15_01_18">15–01–18</string>
     <string name="gekocht">Al gekocht</string>
     <string name="koop">Koop mij!</string>
     <string name="vaker_meten">Vaker je bloedsuiker meten!</string>
     <string name="air" />
     <string name="time">00:00</string>
     <string name="hoogte">hoogte</string>
-    <string name="all_measurements">Klik hier om al je metingen te bekijken</string>
-    <string name="date">0000-00-00</string>
+    <string name="all_measurements">Klik hier om al je metingen te bekijken   </string>
+    <string name="date">0000–00–00</string>
     <string name="edit_button">edit button</string>
     <string name="pokemon">pokemon</string>
     <string name="background_for_pokemon">background for pokemon</string>
     <string name="ga_terug_naar_het_hoofdscherm">Ga terug naar het hoofdscherm</string>
+    <string name="al_je_metingen">Al je metingen</string>
+    <string name="laden">Laden...........</string>
+    <string name="logout">Logout</string>
+    <string name="klik_hier_om_al_je_metingen_te_bekijken">Klik hier om al je metingen te bekijken</string>
+    <string name="vul_je_nieuwe_meting_in">Vul je nieuwe meting in</string>
 
     <string-array name="moments">
         <item>extra</item>

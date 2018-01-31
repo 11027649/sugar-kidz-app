@@ -28,6 +28,8 @@ public class LoginActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private String uid;
 
+    Boolean isParent;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -48,6 +50,7 @@ public class LoginActivity extends AppCompatActivity {
      * This Listener will send the user to the right UI.
      */
     public void checkIfParent() {
+
         // check if user is a parent or not and update UI accordingly
         DatabaseReference mRef = FirebaseDatabase.getInstance().getReference("users/" + uid);
         mRef.addListenerForSingleValueEvent(isParentListener);
@@ -62,7 +65,7 @@ public class LoginActivity extends AppCompatActivity {
         @Override
         public void onDataChange(DataSnapshot dataSnapshot) {
             // this method is called once with the initial value
-            Boolean isParent = (boolean) dataSnapshot.child("isParent").getValue();
+            isParent = (boolean) dataSnapshot.child("isParent").getValue();
             Log.d(TAG, "Value is: " + isParent);
 
             // update UI for parent or kid
@@ -107,7 +110,11 @@ public class LoginActivity extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
-                            checkIfParent();
+                            FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+                            if (currentUser != null) {
+                                uid = currentUser.getUid();
+                                checkIfParent();
+                            }
                         } else {
                             Log.w(TAG, "signInWithEmail:failure", task.getException());
                             Toaster(LoginActivity.this, "De combinatie van email en " +

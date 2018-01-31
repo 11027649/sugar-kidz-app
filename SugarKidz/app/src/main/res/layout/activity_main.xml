@@ -20,6 +20,7 @@
         android:fontFamily="cursive"
         android:text="@string/sugar_kidz"
         android:textAlignment="center"
+        android:textColor="@color/green"
         android:textSize="36sp"
         app:layout_constraintBottom_toTopOf="@+id/textView12"
         app:layout_constraintEnd_toEndOf="parent" />
@@ -35,7 +36,7 @@
         android:layout_height="wrap_content"
         android:text="@string/je_laatst_gemeten_bloedsuiker"
         android:textAlignment="center"
-        android:textSize="18sp" />
+        android:textSize="24sp" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -44,23 +45,27 @@
 
         <TextView
             android:id="@+id/lastMeasurementDate"
-            android:layout_width="143dp"
+            android:layout_width="152dp"
             android:layout_height="match_parent"
-            android:text="@string/vaker_meten"
+            android:gravity="bottom"
             android:textAlignment="center" />
 
         <TextView
             android:id="@+id/lastMeasurementHeight"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/air"
-            android:textSize="36sp"
-            android:textStyle="bold" />
+            android:layout_height="match_parent"
+            android:fontFamily="monospace"
+            android:gravity="bottom"
+            android:textColor="@color/purple"
+            android:textSize="30sp" />
 
         <TextView
             android:id="@+id/textView5"
-            android:layout_width="102dp"
-            android:layout_height="wrap_content"
+            android:layout_width="140dp"
+            android:layout_height="match_parent"
+            android:gravity="bottom"
+            android:paddingEnd="8dp"
+            android:paddingStart="8dp"
             android:text="@string/mmol_liter"
             android:textSize="18sp" />
 
@@ -69,7 +74,15 @@
     <TextView
         android:id="@+id/air2"
         android:layout_width="match_parent"
-        android:layout_height="20dp" />
+        android:layout_height="42dp"
+        android:fontFamily="sans-serif-condensed"
+        android:gravity="bottom"
+        android:paddingEnd="8dp"
+        android:paddingStart="8dp"
+        android:text="@string/vul_je_nieuwe_meting_in"
+        android:textAlignment="textEnd"
+        android:textStyle="italic"
+        tools:ignore="RtlCompat" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -105,10 +118,12 @@
 
                     <TextView
                         android:id="@+id/time"
-                        android:layout_width="0dp"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/time"
-                        android:layout_weight="1"
+                        android:paddingStart="8dp"
+                        android:paddingEnd="8dp"
+                        android:textAlignment="textEnd"
                         android:textSize="18sp" />
 
                     <ImageView
@@ -132,6 +147,8 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="@string/date"
+                        android:paddingStart="8dp"
+                        android:paddingEnd="8dp"
                         android:textSize="18sp" />
 
                     <ImageView
@@ -148,7 +165,7 @@
 
             <Spinner
                 android:id="@+id/labelMeasurement"
-                android:layout_width="0dp"
+                android:layout_width="75dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1" />
 
@@ -164,10 +181,10 @@
             <Button
                 android:id="@+id/addMeasurement"
                 style="@style/Widget.AppCompat.Button.Borderless.Colored"
-                android:layout_width="wrap_content"
+                android:layout_width="71dp"
                 android:layout_height="wrap_content"
-                android:onClick="addMeasurement"
                 android:layout_gravity="end"
+                android:onClick="addMeasurement"
                 android:text="@string/ok" />
         </LinearLayout>
 
@@ -196,15 +213,18 @@
         android:layout_height="wrap_content"
         android:text="@string/je_metingen_van_vandaag"
         android:textAlignment="center"
-        android:textSize="18sp" />
+        android:textColor="@color/green"
+        android:textSize="24sp" />
 
     <TextView
         android:id="@+id/allMeasurements"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:onClick="goToLogbook"
-        android:text="@string/all_measurements"
+        android:text="@string/klik_hier_om_al_je_metingen_te_bekijken"
         android:textAlignment="textEnd"
+        android:paddingStart="8dp"
+        android:paddingEnd="8dp"
         android:textColor="@color/colorAccent"
         android:textStyle="italic" />
 

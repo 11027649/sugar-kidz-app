@@ -9,43 +9,33 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.TreeSet;
 
 /**
  * Created by Natasja on 22-1-2018.
  * This is an adapter made to show the Logbook of the user or the user's kid. It contains
  * headers with the date that the measurements have been made.
+ *
+ * Source: http://stacktips.com/tutorials/android/listview-with-section-header-in-android
  */
-
 public class LogbookAdapter extends BaseAdapter {
     private static final int TYPE_ITEM = 0;
     private static final int TYPE_SEPARATOR = 1;
+
+    private MeasurementViewHolder mHolder;
+    private HeaderViewHolder hHolder;
 
     private ArrayList<Measurement> measurements = new ArrayList<>();
     private TreeSet<Integer> sectionHeader = new TreeSet<>();
 
     private LayoutInflater mInflater;
 
+    /**
+     * When making the adapter, get the layout inflater.
+     */
     public LogbookAdapter(Context context) {
-        mInflater = (LayoutInflater) context
-                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-    }
-
-    public void addItem (Measurement measurement) {
-        measurements.add(measurement);
-        notifyDataSetChanged();
-    }
-
-    public void addSectionHeaderItem(final String dateString) {
-        Measurement notARealMeasurement = new Measurement(dateString);
-
-        measurements.add(notARealMeasurement);
-        sectionHeader.add(measurements.size() - 1);
-        notifyDataSetChanged();
-    }
-
-    public void removeAllItems() {
-        measurements.clear();
+        mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
 
     @Override
@@ -74,13 +64,37 @@ public class LogbookAdapter extends BaseAdapter {
     }
 
     /**
-     *
-     * Source: http://stacktips.com/tutorials/android/listview-with-section-header-in-android
+     * Add an item to the Adapter.
+     */
+    public void addItem (Measurement measurement) {
+        measurements.add(measurement);
+        notifyDataSetChanged();
+    }
+
+    /**
+     * Add a header to the adapter. This is a "Measurement" because the list only contains
+     * measurements.
+     */
+    public void addSectionHeaderItem(final String dateString) {
+        Measurement notARealMeasurement = new Measurement(dateString);
+
+        measurements.add(notARealMeasurement);
+        sectionHeader.add(measurements.size() - 1);
+        notifyDataSetChanged();
+    }
+
+    /**
+     * This is a functions that removes all items from the list.
+     */
+    public void removeAllItems() {
+        measurements.clear();
+    }
+
+    /**
+     * This is the getView method that inflates the layout if it's null, and if it's not fills it
+     * with measurements and headers.
      */
     public View getView(int position, View convertView, ViewGroup parent) {
-
-        MeasurementViewHolder mHolder = null;
-        HeaderViewHolder hHolder = null;
 
         int rowType = getItemViewType(position);
 
@@ -88,8 +102,7 @@ public class LogbookAdapter extends BaseAdapter {
             mHolder = new MeasurementViewHolder();
             hHolder = new HeaderViewHolder();
 
-            Log.d("TOTAL LOGBOOK", "in de if, voor de switch");
-
+            // depending on what rowtype, inflate the layout and set the text
             switch (rowType) {
                 case TYPE_ITEM:
                     convertView = mInflater.inflate(R.layout.row_logbook, null);
@@ -98,56 +111,63 @@ public class LogbookAdapter extends BaseAdapter {
                     mHolder.labelTextView = convertView.findViewById(R.id.label);
                     mHolder.heightTextView = convertView.findViewById(R.id.height);
 
-                    mHolder.labelTextView.setText(measurements.get(position).labelMeasurement);
-                    mHolder.heightTextView.setText(measurements.get(position).heightMeasurement);
-                    mHolder.timeTextView.setText(measurements.get(position).timeMeasurement);
-
-                    Log.d("TOTAL LOGBOOK", "type_item");
-
+                    setTextmHolder(position);
                     convertView.setTag(mHolder);
-
                     break;
 
                 case TYPE_SEPARATOR:
                     convertView = mInflater.inflate(R.layout.row_header_logbook, null);
-                    hHolder.holderTextView = convertView.findViewById(R.id.dateTextView);
 
-                    hHolder.holderTextView.setText(measurements.get(position).labelMeasurement);
+                    hHolder.headerTextView = convertView.findViewById(R.id.dateTextView);
 
-                    Log.d("TOTAL LOGBOOK", "type_separator");
-
+                    setTexthHolder(position);
                     convertView.setTag(hHolder);
-
                     break;
             }
         } else {
+            // the measurements are more abundant than the headers so try a measurement first
             try {
                 mHolder = (MeasurementViewHolder) convertView.getTag();
-                Log.d("TOTAL LOGBOOK", "Boe ik ben in mholder != null");
-
-                mHolder.labelTextView.setText(measurements.get(position).labelMeasurement);
-                mHolder.heightTextView.setText(measurements.get(position).heightMeasurement);
-                mHolder.timeTextView.setText(measurements.get(position).timeMeasurement);
-
+                setTextmHolder(position);
             } catch(ClassCastException e) {
                 hHolder = (HeaderViewHolder) convertView.getTag();
-
-                Log.d("TOTAL LOGBOOK", "hier");
-                hHolder.holderTextView.setText(measurements.get(position).labelMeasurement);
+                setTexthHolder(position);
             }
         }
 
         return convertView;
     }
 
+    /**
+     * Set the text in the Header Holder View.
+     */
+    public void setTexthHolder(int position) {
+        hHolder.headerTextView.setText(measurements.get(position).labelMeasurement);
+    }
+
+    /**
+     * Set the text in the Measurement Holder View.
+     */
+    public void setTextmHolder(int position) {
+        mHolder.labelTextView.setText(measurements.get(position).labelMeasurement);
+        mHolder.heightTextView.setText(measurements.get(position).heightMeasurement);
+        mHolder.timeTextView.setText(measurements.get(position).timeMeasurement);
+    }
+
+    /**
+     * A class for the MeasurementViewHolder.
+     */
     public static class MeasurementViewHolder {
         public TextView labelTextView;
         public TextView heightTextView;
         public TextView timeTextView;
     }
 
+    /**
+     * A class for the HeaderViewHolder.
+     */
     public static class HeaderViewHolder {
-        public TextView holderTextView;
+        public TextView headerTextView;
     }
 
 
