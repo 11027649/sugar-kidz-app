@@ -1,4 +1,7 @@
-# Project Proposal
+# Sugar Kidz
+
+[![BCH compliance](https://bettercodehub.com/edge/badge/11027649/sugar-kidz-app?branch=master)](https://bettercodehub.com/)
+
 Het doel van dit document is het idee voor een project omzetten naar een echt plan. Het project moet niet te veel, en niet te weinig voorstellen en goed gedefinieerd zijn. 
 
 ## _Het probleem_
