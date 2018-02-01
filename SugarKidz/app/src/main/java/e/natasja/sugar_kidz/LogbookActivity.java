@@ -297,16 +297,7 @@ public class LogbookActivity extends AppCompatActivity implements ConnectionInte
                 }
             }
 
-            // if you're a kid you don't need notifications
-            // set notification needed to true after populating the listview to make sure it doesn't
-            // send you a notification the moment you open the app
-            if (isParent) {
-                notificationNeeded = true;
-            }
-
-            ListView mListView = findViewById(R.id.totalLogbookListView);
-            mListView.setAdapter(mAdapter);
-            mListView.setSelection(mAdapter.getCount() - 1);
+            setAdapter();
         }
 
         @Override
@@ -314,6 +305,23 @@ public class LogbookActivity extends AppCompatActivity implements ConnectionInte
             Log.w(TAG, "Failed to read value.");
         }
     };
+
+    /**
+     * This function actually sets the adapter to the listview, and scrolls it all the way down so
+     * the user see the new measurement at first. It also changes the boolean NotificationNeeded
+     * to true if you're a parent. The kids don't get notifications.
+     */
+    public void setAdapter() {
+        // set notification needed to true after populating the listview to make sure it doesn't
+        // send you a notification the moment you open the app
+        if (isParent) {
+            notificationNeeded = true;
+        }
+
+        ListView mListView = findViewById(R.id.totalLogbookListView);
+        mListView.setAdapter(mAdapter);
+        mListView.setSelection(mAdapter.getCount() - 1);
+    }
 
     /**
      * This is the onClick listener of the button. It sends the parent to the couple activity.

@@ -158,13 +158,13 @@ public class PokeshopAdapter extends ArrayAdapter {
                 String ownedOrNot = String.valueOf(dataSnapshot.child("Pokemons").child(pokemonNumber).getValue());
 
                 if (ownedOrNot.equals("true")) {
-                    Toast.makeText(getContext(), "Deze pokemon heb je al!", Toast.LENGTH_SHORT).show();
+                    LoginActivity.Toaster(getContext(), "Deze pokemon heb je al!");
                 } else if (XP >= 1000) {
                     addPokemon(pokemonNumber);
                     int newXP = XP - 1000;
                     FirebaseDatabase.getInstance().getReference("users/" + uid + "/xpAmount").setValue(newXP);
                 } else {
-                    Toast.makeText(getContext(), "Je hebt niet genoeg XP om deze pokemon te kopen.", Toast.LENGTH_SHORT).show();
+                    LoginActivity.Toaster(getContext(), "Je hebt niet genoeg XP om deze pokemon te kopen.");
                 }
             }
             @Override

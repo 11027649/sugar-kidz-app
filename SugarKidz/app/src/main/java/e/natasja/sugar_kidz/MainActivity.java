@@ -78,9 +78,8 @@ public class MainActivity extends AppCompatActivity {
         builder = new NetworkRequest.Builder();
         isInFront = true;
 
-        // check current status of network connection and start a connection listener
+        // check current status of network connection
         checkConnectionOnce();
-        setConnectionListener();
 
         // check if user is logged in
         if (mAuth.getCurrentUser() == null) {
@@ -89,16 +88,8 @@ public class MainActivity extends AppCompatActivity {
             startActivity(unauthorized);
         } else {
             uid = mAuth.getCurrentUser().getUid();
-
-            // check if user is a parent
-            mRef = FirebaseDatabase.getInstance().getReference("users/" + uid);
-            mRef.addListenerForSingleValueEvent(isParentListener);
-
-            setDate();
-            populateLogbook();
-            populateSpinner();
+            setLoggedInUI();
         }
-
     }
 
     @Override
@@ -115,12 +106,25 @@ public class MainActivity extends AppCompatActivity {
         isInFront = false;
     }
 
+    public void setLoggedInUI() {
+        // check if user is a parent
+        mRef = FirebaseDatabase.getInstance().getReference("users/" + uid);
+        mRef.addListenerForSingleValueEvent(isParentListener);
+
+        setDate();
+        populateLogbook();
+        populateSpinner();
+    }
+
     /**
      * This method checks the connection if this Activity is opened.
      */
     private void checkConnectionOnce() {
         // call internet status check
         isConnected = isNetworkAvailable();
+
+        // after checking once, start a connection listener
+        setConnectionListener();
     }
 
     /**
