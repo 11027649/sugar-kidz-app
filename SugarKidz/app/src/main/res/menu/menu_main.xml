@@ -13,20 +13,19 @@
         <menu>
             <item
                 android:id="@+id/menu_pokeshop"
-                android:title="Pokemon Shop"
+                android:title="@string/pokemon_shop"
                 android:icon="@drawable/charmander"/>
             <item
                 android:id="@+id/menu_garden"
-                android:title="Mijn tuin"
+                android:title="@string/mijn_tuin"
                 android:icon="@drawable/garden"/>
             <item
                 android:id="@+id/menu_couple"
-                android:title="Koppel een apparaat"
+                android:title="@string/koppel_een_apparaat"
                 android:icon="@drawable/couple"/>
-
             <item
                 android:id="@+id/menu_logout"
-                android:title="Log uit"
+                android:title="@string/log_uit"
                 android:icon="@drawable/logout"/>
 
         </menu>

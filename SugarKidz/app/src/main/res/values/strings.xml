@@ -41,6 +41,10 @@
     <string name="logout">Logout</string>
     <string name="klik_hier_om_al_je_metingen_te_bekijken">Klik hier om al je metingen te bekijken</string>
     <string name="vul_je_nieuwe_meting_in">Vul je nieuwe meting in</string>
+    <string name="pokemon_shop">Pokemon Shop</string>
+    <string name="koppel_een_apparaat">Koppel een apparaat</string>
+    <string name="mijn_tuin">Mijn tuin</string>
+    <string name="log_uit">Log uit</string>
 
     <string-array name="moments">
         <item>extra</item>

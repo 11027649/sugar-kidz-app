@@ -217,38 +217,44 @@ public class MainActivity extends AppCompatActivity {
 
         // disable navigation if the connection is lost
         if (isConnected) {
-            switch(id) {
-                case (R.id.menu_couple):
-                    doIntent(CoupleActivity.class);
-                    break;
-
-                case (R.id.menu_garden):
-                    doIntent(GardenActivity.class);
-                    break;
-
-                case (R.id.menu_logout):
-                    FirebaseAuth.getInstance().signOut();
-                    doIntent(LoginActivity.class);
-                    break;
-
-                case (R.id.menu_pokeshop):
-                    doIntent(PokeshopActivity.class);
-                    break;
-            }
+            menuSwitch(id);
         } else {
-            LoginActivity.Toaster(MainActivity.this,
+            LoginActivity.Toaster(
+                    MainActivity.this,
                     "Deze actie kan niet worden uitgevoerd omdat je geen internet verbinding hebt.");
         }
+
         return super.onOptionsItemSelected(item);
     }
 
     /**
-     * A function for the intents in the menu.
+     * This is the switch that belongs to the MaincActivity menu.
      */
-    public void doIntent(Class context) {
-        // don't finish the main activity because it needs to keep listening for internet connection
-        Intent intent = new Intent(this, context);
-        startActivity(intent);
+    public void menuSwitch(int id){
+        switch(id) {
+
+            // if clicked on couple, go to couple, etc.
+            case (R.id.menu_couple):
+                Intent toCouple = new Intent(this, CoupleActivity.class);
+                startActivity(toCouple);
+                break;
+
+            case (R.id.menu_garden):
+                Intent toGarden = new Intent(this, GardenActivity.class);
+                startActivity(toGarden);
+                break;
+
+            case (R.id.menu_logout):
+                FirebaseAuth.getInstance().signOut();
+                Intent logout = new Intent(this, LoginActivity.class);
+                startActivity(logout);
+                break;
+
+            case (R.id.menu_pokeshop):
+                Intent toPokeshop = new Intent(MainActivity.this, PokeshopActivity.class);
+                startActivity(toPokeshop);
+                break;
+        }
     }
 
     /**
