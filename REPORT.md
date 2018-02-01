@@ -85,22 +85,22 @@ I didn't use external code. I did use [Google's FireBase](https://firebase.googl
 
 I used a [Pokemon API](https://pokeapi.co/).
 
-## 2. Challenges
+## 3. Challenges
 I've come across some serious challenges while making this application. First of all, we had to do a lot of things I didn't expect in the beginning, like every day Stand-Ups, weekly Presentations, making a StyleGuide and do (multiple) peer reviews. I noticed that with all of this going on, I couldn't really order my thoughts and make a planning for my app. It felt like I had to leave some good ideas because of the time, and that I found that a shame.
 
-### 2.1 The Volley Problem
+### 3.1 The Volley Problem
 Volley doesn't like it when you Request multiple things at a time. This is an issue that really took long to deal with. I couldn't load my pokemons in the listview properly (see also my procces.md) I fixed this using a SerialRequestQueue, but that took about 10 minutes so I decided to save the Pokemons to Firebase and load them from there. This actually created a new issue: how to save Bitmaps to Firebase.
 
-### 2.2 How to Save Bitmaps to FireBase
+### 3.2 How to Save Bitmaps to FireBase
 After searching pretty long, I found out you can save Bitmaps as a string to Firebase and use certain functions to encode, and decode them.
 
-### 2.3 Listening for Internet Connection
+### 3.3 Listening for Internet Connection
 The internet connection wasn’t easy as well, I had to use an interface to close activities from the Main Activity (and I didn’t ever us one before).
 
-### 2.4 Animations on ImageViews and onClickListeners
+### 3.4 Animations on ImageViews and onClickListeners
 Because of the animations I added to the pokemons, the pokemon could be at one side of the screen, while the onClick listener remained at the place where the ImageView really was. I tried to fix this with Renske, but this was hard and there's really little information about Android and Animations. So I fixed this with making a colored backgrounded and make sure the animations of the pokemon didn't go out of their own, colored, piece of the garden. Then I added the onClick listener to the background instead of the pokemon imageview. Then I made these backgrounds invisible (transparent.)
 
-## 3. Choiches to do things differently
+## 4. Choiches to do things differently
 A lot of things I decided to do differently are already said in this report, and also in my process book. I will repeat those in short.
 1. The swipes - they didn't work the way I expected. 
 1. The snacks - there wasn't time for this so I didn't even start.
@@ -112,9 +112,9 @@ A lot of things I decided to do differently are already said in this report, and
 
 1. I wanted to add some sort of small messaging service between parent and kidd to let the parent remind their kid to check their bloodsugar, or to ask them how they are feeling. It can also be used for the kids to immediately explain a high or low measurement to their parents.
 
-### Trade-Offs
+### 4.1 Trade-Offs
 Because there wasn't very much time, there are things that I wasn't able to do. But in the ideal world, I would build further on the app I made and add the features I thought of in the beginning. The only choice I had to make to do something different was with the swipes, and the menu isn't a Trade-Off, it's more clear. The other choices were all to not do things, because of the time.
 
-## 4. Final thoughts
+## 5. Final thoughts
 I'm pretty happy about how my app turned out. It looks nice and does what I wanted it to do. It is bug free (as far as I know, at least.) There are some more things that I wanted to add in the beginning, but it is just too much for in these 4 weeks.
 
