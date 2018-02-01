@@ -29,25 +29,24 @@ Je zult een account aan moeten maken als ouder of kind zijnde:
 <img src="docs/register.jpeg" width="30%" height="30%"/>
 
 ### De app voor kinderen
-<img src="docs/homescreen.jpeg" width="30%" height="30%"/>  <img src="docs/homescreen_with_menu.jpeg" width="30%" height="30%"/>
-
 Voeg metingen toe (en verwijder eventueel metingen) in het hoofdscherm. Je kan vanaf hier ook overal heen navigeren.
 
-<img src="docs/logbook_kid.jpeg" width="30%" height="30%"/>  <img src="docs/couple_activity_kid.jpeg" width="30%" height="30%"/>
+<img src="docs/homescreen.jpeg" width="30%" height="30%"/>  <img src="docs/homescreen_with_menu.jpeg" width="30%" height="30%"/>
 
 Bekijk al je metingen in het logbook, en koppel je account aan dat van je ouders via het koppelscherm
 
-<img src="docs/pokeshop.jpeg" width="30%" height="30%"/>  <img src="docs/garden_gif.gif" width="30%" height="30%"/>
+<img src="docs/logbook_kid.jpeg" width="30%" height="30%"/>  <img src="docs/couple_activity_kid.jpeg" width="30%" height="30%"/>
 
 Geef je XP uit in de Pokemon winkel en bekijk je pokemons in de tuin!
 
+<img src="docs/pokeshop.jpeg" width="30%" height="30%"/>  <img src="docs/garden_gif.gif" width="30%" height="30%"/>
 
 ### De app voor ouders
-<img src="docs/logbook_parent_uncoupled.jpeg" width="30%" height="30%"/>  <img src="docs/couple_activity_parent.jpeg" width="30%" height="30%"/>
-
 De eerste keer dat je binnenkomt in de app zul je een leeg logboek zien. Je moet je account nog koppelen aan dat van je kind.
 
-<img src="docs/logbook_parent.jpeg" width="30%" height="30%"/>  <img src="docs/notification.jpeg" width="30%" height="30%"/>
+<img src="docs/logbook_parent_uncoupled.jpeg" width="30%" height="30%"/>  <img src="docs/couple_activity_parent.jpeg" width="30%" height="30%"/>
 
 Daarna zul je het logbook van je kind zien en notificaties ontvangen als je kind een meting toevoegd.
+
+<img src="docs/logbook_parent.jpeg" width="30%" height="30%"/>  <img src="docs/notification.jpeg" width="30%" height="30%"/>
 
