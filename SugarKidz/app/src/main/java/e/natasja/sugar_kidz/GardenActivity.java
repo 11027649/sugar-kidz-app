@@ -39,8 +39,7 @@ public class GardenActivity extends AppCompatActivity implements ConnectionInter
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_garden);
 
-        FirebaseAuth mAuth = FirebaseAuth.getInstance();
-        FirebaseUser aUser = mAuth.getCurrentUser();
+        FirebaseUser aUser = FirebaseAuth.getInstance().getCurrentUser();
 
         MainActivity.delegate = this;
 
@@ -53,21 +52,13 @@ public class GardenActivity extends AppCompatActivity implements ConnectionInter
         } else {
             uid = aUser.getUid();
             mDatabase = FirebaseDatabase.getInstance();
-            LoginActivity.Toaster(
-                    GardenActivity.this,
-                    "Klik op de pokemons om ze te veranderen!");
+            LoginActivity.Toaster(GardenActivity.this, "Klik op de pokemons om ze te veranderen!");
 
             // hide the navigation and notification bars
             setUIOptions();
 
             // check which pokemons you've buyed
             findOwnedPokemon();
-
-            // load the pokemons that were in the garden last time
-            loadPokemons();
-
-            // make the views clickable to make you able to change pokemons
-            addClickListener();
         }
     }
 
@@ -246,10 +237,17 @@ public class GardenActivity extends AppCompatActivity implements ConnectionInter
      * This function finds the pokemons a user owns and puts them in an array.
      */
     public void findOwnedPokemon() {
+        // load pokemons from previous session
+        loadPokemons();
+
+        // find owned pokemons so the user will be able to change their pokemons to other ones they own
         mRef = mDatabase.getReference("users/" + uid + "/Pokemons");
         ownedPokemon = new ArrayList<>();
 
         mRef.addListenerForSingleValueEvent(findOwnedPokemonListener);
+
+        // make the views clickable to make you able to change pokemons
+        addClickListener();
     }
 
     /**

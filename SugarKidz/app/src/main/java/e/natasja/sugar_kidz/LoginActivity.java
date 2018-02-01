@@ -105,11 +105,19 @@ public class LoginActivity extends AppCompatActivity {
         }
 
         // sign in user
+        signIn(email, password);
+    }
+
+    /**
+     * This function actually signs in the user.
+     */
+    public void signIn(String email, String password) {
         mAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
+                            // if signed in, check if parent, and send to right activity
                             FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
                             if (currentUser != null) {
                                 uid = currentUser.getUid();
