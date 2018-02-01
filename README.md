@@ -36,7 +36,7 @@ Voeg metingen toe (en verwijder eventueel metingen) in het hoofdscherm. Je kan v
 
 Bekijk al je metingen in het logbook, en koppel je account aan dat van je ouders via het koppelscherm
 
-<img src="docs/pokeshop.jpeg" width="30%" height="30%"/>  <img src="docs/garden.jpeg" width="30%" height="30%"/>
+<img src="docs/pokeshop.jpeg" width="30%" height="30%"/>  <img src="docs/garden_gif.gif" width="30%" height="30%"/>
 
 Geef je XP uit in de Pokemon winkel en bekijk je pokemons in de tuin!
 
