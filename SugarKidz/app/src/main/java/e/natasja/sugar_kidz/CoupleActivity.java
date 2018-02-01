@@ -264,15 +264,13 @@ public class CoupleActivity extends AppCompatActivity implements ConnectionInter
                 String codeToCheckWith = String.valueOf(dataSnapshot.getValue());
 
                 if (code.equals(codeToCheckWith) && (!codeToCheckWith.equals("null"))) {
-                    LoginActivity.Toaster(CoupleActivity.this,
-                            "Je hebt je account succesvol gekoppeld!");
+                    LoginActivity.Toaster(CoupleActivity.this, "Je hebt je account succesvol gekoppeld!");
 
                     mRef = FirebaseDatabase.getInstance().getReference("users/" + uid + "/coupled");
                     mRef.child("kidID").setValue(kidID);
                     mRef.child("kidName").setValue(usernameToSearch);
                 } else {
-                    LoginActivity.Toaster(CoupleActivity.this,
-                            "De code klopt niet of kan niet worden gevonden.");
+                    LoginActivity.Toaster(CoupleActivity.this, "De code klopt niet of kan niet worden gevonden.");
                 }
 
             }

@@ -1,7 +1,6 @@
 package e.natasja.sugar_kidz;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,7 +8,6 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.TreeSet;
 
 /**
@@ -106,36 +104,57 @@ public class LogbookAdapter extends BaseAdapter {
             switch (rowType) {
                 case TYPE_ITEM:
                     convertView = mInflater.inflate(R.layout.row_logbook, null);
-
-                    mHolder.timeTextView = convertView.findViewById(R.id.time);
-                    mHolder.labelTextView = convertView.findViewById(R.id.label);
-                    mHolder.heightTextView = convertView.findViewById(R.id.height);
-
-                    setTextmHolder(position);
-                    convertView.setTag(mHolder);
+                    setTypeItemView(position, convertView);
                     break;
 
                 case TYPE_SEPARATOR:
                     convertView = mInflater.inflate(R.layout.row_header_logbook, null);
-
-                    hHolder.headerTextView = convertView.findViewById(R.id.dateTextView);
-
-                    setTexthHolder(position);
-                    convertView.setTag(hHolder);
+                    setTypeSeparatorView(position, convertView);
                     break;
             }
         } else {
             // the measurements are more abundant than the headers so try a measurement first
-            try {
-                mHolder = (MeasurementViewHolder) convertView.getTag();
-                setTextmHolder(position);
-            } catch(ClassCastException e) {
-                hHolder = (HeaderViewHolder) convertView.getTag();
-                setTexthHolder(position);
-            }
+            setView(position, convertView);
         }
 
         return convertView;
+    }
+
+    /**
+     * In this function, the measurement is loaded into the list. This function is only needed if the
+     * convertView was null.
+     */
+    public void setTypeItemView(int position, View convertView) {
+        mHolder.timeTextView = convertView.findViewById(R.id.time);
+        mHolder.labelTextView = convertView.findViewById(R.id.label);
+        mHolder.heightTextView = convertView.findViewById(R.id.height);
+
+        setTextmHolder(position);
+        convertView.setTag(mHolder);
+    }
+
+    /**
+     * In this function, the header is loaded into the list. This function is only needed if the
+     * convertView was null.
+     */
+    public void setTypeSeparatorView(int position, View convertView) {
+        hHolder.headerTextView = convertView.findViewById(R.id.dateTextView);
+
+        setTexthHolder(position);
+        convertView.setTag(hHolder);
+    }
+
+    /**
+     * This function sets the logbook view if it wasn't zero (so after scrolling the listview)
+     */
+    public void setView(int position, View convertView) {
+        try {
+            mHolder = (MeasurementViewHolder) convertView.getTag();
+            setTextmHolder(position);
+        } catch(ClassCastException e) {
+            hHolder = (HeaderViewHolder) convertView.getTag();
+            setTexthHolder(position);
+        }
     }
 
     /**

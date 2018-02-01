@@ -156,16 +156,7 @@ public class PokeshopAdapter extends ArrayAdapter {
                 int XP = Integer.valueOf(xpAmount);
 
                 String ownedOrNot = String.valueOf(dataSnapshot.child("Pokemons").child(pokemonNumber).getValue());
-
-                if (ownedOrNot.equals("true")) {
-                    LoginActivity.Toaster(getContext(), "Deze pokemon heb je al!");
-                } else if (XP >= 1000) {
-                    addPokemon(pokemonNumber);
-                    int newXP = XP - 1000;
-                    FirebaseDatabase.getInstance().getReference("users/" + uid + "/xpAmount").setValue(newXP);
-                } else {
-                    LoginActivity.Toaster(getContext(), "Je hebt niet genoeg XP om deze pokemon te kopen.");
-                }
+                checkOwnedOrNot(ownedOrNot, XP, pokemonNumber);
             }
             @Override
             public void onCancelled(DatabaseError databaseError) {
@@ -175,6 +166,22 @@ public class PokeshopAdapter extends ArrayAdapter {
 
         DatabaseReference mRef = FirebaseDatabase.getInstance().getReference("users/" + uid);
         mRef.addListenerForSingleValueEvent(payListener);
+    }
+
+    /**
+     * This function checks if you've already owned this pokemon, or if you have enough xp to buy it.
+     * It informs the user by a Toast.
+     */
+    private void checkOwnedOrNot(String ownedOrNot, int XP, String pokemonNumber) {
+        if (ownedOrNot.equals("true")) {
+            LoginActivity.Toaster(getContext(), "Deze pokemon heb je al!");
+        } else if (XP >= 1000) {
+            addPokemon(pokemonNumber);
+            int newXP = XP - 1000;
+            FirebaseDatabase.getInstance().getReference("users/" + uid + "/xpAmount").setValue(newXP);
+        } else {
+            LoginActivity.Toaster(getContext(), "Je hebt niet genoeg XP om deze pokemon te kopen.");
+        }
     }
 
     /**
