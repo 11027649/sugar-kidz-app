@@ -80,6 +80,11 @@ The classes that are used in this application are to simply add and receive info
 
 There is also a class CodeGenerator, which is used to create the couple code parents need to link their account to their kids account.
 
+## 2. External code
+I didn't use external code. I did use [Google's FireBase](https://firebase.google.com).
+
+I used a [Pokemon API](https://pokeapi.co/).
+
 ## 2. Challenges
 I've come across some serious challenges while making this application. First of all, we had to do a lot of things I didn't expect in the beginning, like every day Stand-Ups, weekly Presentations, making a StyleGuide and do (multiple) peer reviews. I noticed that with all of this going on, I couldn't really order my thoughts and make a planning for my app. It felt like I had to leave some good ideas because of the time, and that I found that a shame.
 
