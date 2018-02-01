@@ -413,31 +413,41 @@ public class MainActivity extends AppCompatActivity {
 
         // disable navigation if you're not connected
         if (isConnected ) {
-            TextView dateTextView = findViewById(R.id.date);
-            TextView timeTextView = findViewById(R.id.time);
-            Spinner labelSpinner = findViewById(R.id.labelMeasurement);
-            EditText heightMeasurement = findViewById(R.id.hightMeasurement);
+            Measurement newMeasurement = getMeasurementInput();
 
-            final String timeMeasurement = timeTextView.getText().toString();
-            final String dateMeasurement = dateTextView.getText().toString();
-            final String label = labelSpinner.getSelectedItem().toString();
-            final String height = heightMeasurement.getText().toString();
-
-            if (height.equals("")) {
+            if (newMeasurement.heightMeasurement.equals("")) {
                 LoginActivity.Toaster(this, "Vul de hoogte van je bloedsuiker in!");
             } else {
                 mRef = FirebaseDatabase.getInstance().getReference("users/" + uid + "/Measurements");
-                SimpleMeasurement simple = new SimpleMeasurement(label, height);
+                SimpleMeasurement simple = new SimpleMeasurement(newMeasurement.labelMeasurement, newMeasurement.heightMeasurement);
 
                 // check if there's already a measurement at this time (to make sure a user can't
                 // keep submitting at the same minute for XP)
-                checkIfTimeAlreadyExists(simple, timeMeasurement, dateMeasurement);
+                checkIfTimeAlreadyExists(simple, newMeasurement.timeMeasurement, newMeasurement.dateMeasurement);
             }
         } else {
-            LoginActivity.Toaster(
-                    MainActivity.this,
+            LoginActivity.Toaster(MainActivity.this,
                     "Je kan geen metingen toevoegen omdat je geen internet verbinding hebt.");
         }
+    }
+
+    /**
+     * This function gets the info the user has inputted, and saves it in a Measurement.
+     */
+    public Measurement getMeasurementInput() {
+        // find the TextViews, EditText and spinner
+        TextView dateTextView = findViewById(R.id.date);
+        TextView timeTextView = findViewById(R.id.time);
+        Spinner labelSpinner = findViewById(R.id.labelMeasurement);
+        EditText heightMeasurement = findViewById(R.id.hightMeasurement);
+
+        // get all the Strings
+        String timeMeasurement = timeTextView.getText().toString();
+        String dateMeasurement = dateTextView.getText().toString();
+        String label = labelSpinner.getSelectedItem().toString();
+        String height = heightMeasurement.getText().toString();
+
+        return new Measurement(label,dateMeasurement, timeMeasurement, height);
     }
 
     /**

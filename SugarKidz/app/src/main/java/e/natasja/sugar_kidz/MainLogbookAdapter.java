@@ -2,6 +2,7 @@ package e.natasja.sugar_kidz;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.icu.util.Measure;
 import android.support.annotation.NonNull;
 import android.app.AlertDialog;
 import android.text.Html;
@@ -93,20 +94,30 @@ public class MainLogbookAdapter extends ArrayAdapter {
      * Dialog builder for confirmation of deleting a measurement.
      */
     private void dialogBuilder(final Measurement toDelete) {
-
         // instantiate an AlertDialog.Builder with its constructor
         AlertDialog.Builder builder = new AlertDialog.Builder(mContext, R.style.Theme_AppCompat_Dialog_Alert);
 
-        String message = "Weet je zeker dat je deze meting van " +
-                toDelete.heightMeasurement + " om " +
-                toDelete.timeMeasurement + " wilt verwijderen?";
+        String message = "Weet je zeker dat je deze meting van " + toDelete.heightMeasurement
+                + " om " + toDelete.timeMeasurement + " wilt verwijderen?";
 
-        String title = "Let op";
+        String title = "Let op!";
 
         // chain together various setter methods to set the dialog characteristics
         builder.setMessage(Html.fromHtml("<font color='black'>" + message + "</font>"))
             .setTitle(Html.fromHtml("<font color='black'>" + title + "</font>"));
 
+        setButtonActions(toDelete, builder);
+
+        // create the AlertDialog
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
+    /**
+     * This functions sets the button texts and sets the right actions when one of the buttons is
+     * clicked.
+     */
+    public void setButtonActions(final Measurement toDelete, AlertDialog.Builder builder) {
         // add the buttons
         builder.setPositiveButton("Ja, verwijder", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
@@ -123,10 +134,6 @@ public class MainLogbookAdapter extends ArrayAdapter {
                 dialog.cancel();
             }
         });
-
-        // create the AlertDialog
-        AlertDialog dialog = builder.create();
-        dialog.show();
     }
 
 }
