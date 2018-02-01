@@ -219,33 +219,36 @@ public class MainActivity extends AppCompatActivity {
         if (isConnected) {
             switch(id) {
                 case (R.id.menu_couple):
-                    Intent toCouple = new Intent(this, CoupleActivity.class);
-                    startActivity(toCouple);
+                    doIntent(CoupleActivity.class);
                     break;
 
                 case (R.id.menu_garden):
-                    Intent toGarden = new Intent(this, GardenActivity.class);
-                    startActivity(toGarden);
+                    doIntent(GardenActivity.class);
                     break;
 
                 case (R.id.menu_logout):
                     FirebaseAuth.getInstance().signOut();
-                    Intent logout = new Intent(this, LoginActivity.class);
-                    startActivity(logout);
+                    doIntent(LoginActivity.class);
                     break;
 
                 case (R.id.menu_pokeshop):
-                    Intent toPokeshop = new Intent(MainActivity.this, PokeshopActivity.class);
-                    startActivity(toPokeshop);
+                    doIntent(PokeshopActivity.class);
                     break;
             }
         } else {
-            LoginActivity.Toaster(
-                    MainActivity.this,
+            LoginActivity.Toaster(MainActivity.this,
                     "Deze actie kan niet worden uitgevoerd omdat je geen internet verbinding hebt.");
         }
-
         return super.onOptionsItemSelected(item);
+    }
+
+    /**
+     * A function for the intents in the menu.
+     */
+    public void doIntent(Class context) {
+        // don't finish the main activity because it needs to keep listening for internet connection
+        Intent intent = new Intent(this, context);
+        startActivity(intent);
     }
 
     /**
