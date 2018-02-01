@@ -107,6 +107,9 @@ A lot of things I decided to do differently are already said in this report, and
 
 1. I wanted to add some sort of small messaging service between parent and kidd to let the parent remind their kid to check their bloodsugar, or to ask them how they are feeling. It can also be used for the kids to immediately explain a high or low measurement to their parents.
 
+### Trade-Offs
+Because there wasn't very much time, there are things that I wasn't able to do. But in the ideal world, I would build further on the app I made and add the features I thought of in the beginning. The only choice I had to make to do something different was with the swipes, and the menu isn't a Trade-Off, it's more clear. The other choices were all to not do things, because of the time.
+
 ## 4. Final thoughts
 I'm pretty happy about how my app turned out. It looks nice and does what I wanted it to do. It is bug free (as far as I know, at least.) There are some more things that I wanted to add in the beginning, but it is just too much for in these 4 weeks.
 
