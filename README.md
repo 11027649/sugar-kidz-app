@@ -13,6 +13,7 @@ Demonstration video:
 
 ## Over
 Sugar Kidz is gemaakt door Natasja Wezel, in het kader van het eindproject van de Minor Programmeren op de UvA, in januari 2018.
+De Sugar Kidz app is beschikbaar vanaf API 21.
 
 Better Code Hub:
 [![BCH compliance](https://bettercodehub.com/edge/badge/11027649/sugar-kidz-app?branch=master)](https://bettercodehub.com/)
