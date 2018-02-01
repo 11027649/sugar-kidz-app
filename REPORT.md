@@ -62,13 +62,15 @@ My Firebase Database has the following structure:
 1. users
     1. UID
         1. username
-        1. amount of XP owned
-        1. pokemon
+        1. amount of XP owned (if you're a kid)
+        1. boolean isParent
+        1. coupled (if you're a parent)
+        1. pokemon (if you're a kid)
             1. owned pokemon
                 1. ints of pokemons owned
-                1. displayed pokemon
-                      1. ints of pokemons displayed
-        1. measurements
+        1. displayed pokemon (if you're a kid)
+              1. ints of pokemons displayed
+        1. measurements (if you're a kid)
             1. date
                 1. time
                     1. title of this measurement (VO,NO,VL,NL,VA,NA,VS, extra (these are dutch moments of the day that are common                              moments to measure your blood glucose))
