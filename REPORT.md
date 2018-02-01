@@ -81,7 +81,11 @@ The classes that are used in this application are to simply add and receive info
 There is also a class CodeGenerator, which is used to create the couple code parents need to link their account to their kids account.
 
 ## 2. External code
-I didn't use external code. I did use [Google's FireBase](https://firebase.google.com).
+* Use of base 64:
+  https://stackoverflow.com/questions/4830711/how-to-convert-a-image-into-base64-string
+  https://gist.github.com/WrathChaos/80cd7e613cd7577dae9326e3cd75e4be
+
+I did also use [Google's FireBase](https://firebase.google.com).
 
 I used a [Pokemon API](https://pokeapi.co/).
 
