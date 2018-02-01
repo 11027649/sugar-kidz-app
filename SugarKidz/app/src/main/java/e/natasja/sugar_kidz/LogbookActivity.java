@@ -35,6 +35,8 @@ public class LogbookActivity extends AppCompatActivity implements ConnectionInte
     String kidUsername;
     String kidID;
 
+    NotificationCompat.Builder mBuilder;
+
     private LogbookAdapter mAdapter;
 
     public static MainActivity delegate = null;
@@ -223,21 +225,12 @@ public class LogbookActivity extends AppCompatActivity implements ConnectionInte
      * If you click on a notification you'll be send to the logbookactivity.
      */
     public void sendNotification() {
-        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this, "001")
+        mBuilder = new NotificationCompat.Builder(this, "001")
                 .setSmallIcon(R.drawable.meter3)
                 .setContentTitle("Nieuwe meting beschikbaar")
                 .setContentText("Je kind heeft een nieuwe meting toegevoegd!");
 
-        // prepare the intent
-        Intent resultIntent = new Intent(this, LogbookActivity.class);
-        PendingIntent resultPendingIntent = PendingIntent.getActivity(
-                        this,
-                        0,
-                        resultIntent,
-                        PendingIntent.FLAG_UPDATE_CURRENT);
-
-        // set the intent
-        mBuilder.setContentIntent(resultPendingIntent);
+        makeIntentForNotification();
 
         // prepare the vibration and lights pattern for the notification
         mBuilder.setLights(Color.BLUE, 500, 500);
@@ -251,6 +244,22 @@ public class LogbookActivity extends AppCompatActivity implements ConnectionInte
 
         // build and send the actual notfication
         mManager.notify(mNotificationId, mBuilder.build());
+    }
+
+    /**
+     * This function makes the intent for when the receiver of the notfication clicks on it.
+     */
+    public void makeIntentForNotification() {
+        // prepare the intent
+        Intent resultIntent = new Intent(this, LogbookActivity.class);
+        PendingIntent resultPendingIntent = PendingIntent.getActivity(
+                this,
+                0,
+                resultIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT);
+
+        // set the intent
+        mBuilder.setContentIntent(resultPendingIntent);
     }
 
     /**
