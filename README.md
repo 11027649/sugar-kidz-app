@@ -1,54 +1,52 @@
 # Sugar Kidz
 
+![Sugar Kidz logo](docs/logo.png)
+
+(Because this app is for Dutch children, the ReadMe is written in dutch.)
+
+## De Applicatie
+De SugarKidz app is ontwikkeld voor jonge kinderen met diabetes. Het helpt een betere controle te bereiken over deze ziekte door de kinderen aan te moedigen om hun bloedsuiker te meten en hun metingen bij te houden in deze app. Voor elke meting krijg je XP, en dit XP kan je uitgeven aan nieuwe pokemons die je kunt verzamelen en in je tuin kunt plaatsen als je ze hebt.
+
+De app kan ook gebruikt worden door ouders om hun kind een beetje in de gaten te houden: laat je kind een koppelcode genereren en koppel jouw account aan de app van je kind. Je zult notificaties ontvangen als je kind een nieuwe meting invult.
+
+Demonstration video: 
+
+## Over
+Sugar Kidz is gemaakt door Natasja Wezel, in het kader van het eindproject van de Minor Programmeren op de UvA, in januari 2018.
+
+Better Code Hub:
 [![BCH compliance](https://bettercodehub.com/edge/badge/11027649/sugar-kidz-app?branch=master)](https://bettercodehub.com/)
 
-Het doel van dit document is het idee voor een project omzetten naar een echt plan. Het project moet niet te veel, en niet te weinig voorstellen en goed gedefinieerd zijn. 
+## Copyright statement
+De pokemons plaatjes komen uit de Open Source Pokemon API die vrij te gebruiken is voor iedereen. De meter komt uit een diabetes-emoticons app en ook die is vrij te gebruiken voor iedereen. Verder zijn in de app verschillende vrij te gebruiken (standaard) icons gebruikt.
 
-## _Het probleem_
-Er zijn veel jonge kinderen met diabetes. Voor deze groep kinderen bestaat er geen leuke app waarin zij hun bloedsuikers kunnen bijhouden (er bestaan wel apps voor volwassenen.) Deze app wordt ontwikkeld om het voor deze kinderen leuker te maken om hun bloedsuikers te controleren en op deze manier een betere instelling van de ziekte te bereiken (in samenwerking met de ouders/verzorgenden en hun diabetes team.)
+Sugar Kidz is vrijgegeven onder de BSD licentie. Zie het LICENSE bestand voor meer informatie.
 
-## _De oplossing_
+## De Sugar-Kidz app in meer detail
+Je zult een account aan moeten maken als ouder of kind zijnde:
 
-In de app worden kinderen gemotiveerd om 4x per dag hun bloedsuiker te checken, doordat ze XP krijgen als zij hun bloedsuikers invullen.
+<img src="docs/register.jpeg" width="30%" height="30%"/>
 
-![Voorstelling van deze app](docs/proposal.jpg)
+### De app voor kinderen
+<img src="docs/homescreen.jpeg" width="30%" height="30%"/>  <img src="docs/homescreen_with_menu.jpeg" width="30%" height="30%"/>
 
-De belangrijkste functies van de app zijn:
-1. Inloggen en registreren
-1. Je eigen bloedsuikers invullen en XP verdienen
-    1. Koppelen aan ouder-app en bloedsuikers doorsturen
-    1. Je XP uitgeven aan nieuwe pokémon
+Voeg metingen toe (en verwijder eventueel metingen) in het hoofdscherm. Je kan vanaf hier ook overal heen navigeren.
 
-Eventueel:
-1. Alarm zetten om je bloedsuiker te checken op een bepaald moment
-1. Snack-Ideeën (met veel of weinig kH)
+<img src="docs/logbook_kid.jpeg" width="30%" height="30%"/>  <img src="docs/couple_activity_kid.jpeg" width="30%" height="30%"/>
 
-## _Voorwaardes_
-Alles dat nodig is voor deze app
+Bekijk al je metingen in het logbook, en koppel je account aan dat van je ouders via het koppelscherm
 
-### Data bronnen
-RESTful pokémon API: voor alle pokémon data
-De link naar Bulbasaur informatie: [link naar Bulbasaur!](http://pokeapi.co/api/v2/pokemon/1/)
+<img src="docs/pokeshop.jpeg" width="30%" height="30%"/>  <img src="docs/garden.jpeg" width="30%" height="30%"/>
 
-Wordt gebruikt voor de plaatjes van de pokémon: daar moet je naartoe navigeren door de JSON. (Via sprites -> front_default)
-[link naar Bulbasaur sprite.](https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png)
+Geef je XP uit in de Pokemon winkel en bekijk je pokemons in de tuin!
 
-Voor de eventuele snack ideeën misschien een API maar je kan ook de gebruikers zelf een database laten maken. (Denk dat er geen API voor bestaat.)
 
-### Externe componenten
+### De app voor ouders
+<img src="docs/logbook_parent_uncoupled.jpeg" width="30%" height="30%"/>  <img src="docs/couple_activity_parent.jpeg" width="30%" height="30%"/>
 
-Firebase om gegevens van gebruikers bij te houden.
+De eerste keer dat je binnenkomt in de app zul je een leeg logboek zien. Je moet je account nog koppelen aan dat van je kind.
 
-### Vergelijkbare mobiele apps
+<img src="docs/logbook_parent.jpeg" width="30%" height="30%"/>  <img src="docs/notification.jpeg" width="30%" height="30%"/>
 
-_Diabetes:m_ is een app voor volwassenen om hun bloedsuikers bij te houden.
+Daarna zul je het logbook van je kind zien en notificaties ontvangen als je kind een meting toevoegd.
 
-_Pokémon Go!_ is een app waarbij je pokémon kan verzamelen.
-
-_Jerry the Bear_ is de enige app over diabetes speciaal voor kinderen. Dit is een hele andere appp dan de app die ik ga maken. Jerry heeft diabetes. Je kan zijn bloedsuiker controleren, insuline toedienen en eten geven (koolhydraten tellen.) Je doet verder niets met je eigen suikerwaardes. Deze app is in het engels.
-
-Verder zijn er veel apps om diabetes dagboeken bij te houden en apps met koolhydraatarme recepten.
-
-### De moeilijskte onderdelen van deze app
-
-Het moeilijkste van de app is denk ik om een veilige manier te vinden om de app van ouder en kind te koppelen.
