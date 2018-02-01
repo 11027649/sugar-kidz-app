@@ -498,7 +498,8 @@ public class MainActivity extends AppCompatActivity {
                             LoginActivity.Toaster(getApplicationContext(), "Iets ging fout... :(");
                         } else {
                             // if adding went fine, add 100 XP to the user's XP
-                            LoginActivity.Toaster(MainActivity.this, "Je hebt deze meting toegevoegd!");
+                            LoginActivity.Toaster(MainActivity.this, "Je hebt deze " +
+                                    "meting toegevoegd en 100 XP verdiend! Ga naar de Pokemon shop om je XP uit te geven.");
 
                             mRef = FirebaseDatabase.getInstance().getReference("users/" + uid);
                             gainXP();
