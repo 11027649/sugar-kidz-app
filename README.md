@@ -9,7 +9,7 @@ De SugarKidz app is ontwikkeld voor jonge kinderen met diabetes. Het helpt een b
 
 De app kan ook gebruikt worden door ouders om hun kind een beetje in de gaten te houden: laat je kind een koppelcode genereren en koppel jouw account aan de app van je kind. Je zult notificaties ontvangen als je kind een nieuwe meting invult.
 
-Demonstration video: 
+Je kunt mijn productievideo [hier](https://youtu.be/cBFuvT9XPz0) vinden.
 
 ## Over
 Sugar Kidz is gemaakt door Natasja Wezel, in het kader van het eindproject van de Minor Programmeren op de UvA, in januari 2018.
@@ -20,6 +20,10 @@ Better Code Hub:
 
 ## Copyright statement
 De pokemons plaatjes komen uit de Open Source Pokemon API die vrij te gebruiken is voor iedereen. De meter komt uit een diabetes-emoticons app en ook die is vrij te gebruiken voor iedereen. Verder zijn in de app verschillende vrij te gebruiken (standaard) icons gebruikt.
+
+* Gebruik van base 64:
+  https://stackoverflow.com/questions/4830711/how-to-convert-a-image-into-base64-string
+  https://gist.github.com/WrathChaos/80cd7e613cd7577dae9326e3cd75e4be
 
 Sugar Kidz is vrijgegeven onder de BSD licentie. Zie het LICENSE bestand voor meer informatie.
 
