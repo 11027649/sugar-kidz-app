@@ -10,11 +10,11 @@ The application can also be used by parents. They can couple their account to th
 Actually, my actual design really resembles the design I planned in the advanced sketch of my DESIGN.md.
 ![Advanced Design, with interactions and file names](docs/design2.jpg)
 
-I didn't go with the optional snack activities: there was too little time for that. For coupling with a parent I made an extra activitie in which the kids can generate a couple code, and the parents can search for their kids by the username and couple to them, using that same code. For the logbook I used headers with the date, and I made this activity available for the kids theirselves too.
+I didn't go with the optional snack activities: there was too little time for that. For coupling with a parent I made an extra activity in which the kids can generate a couple code, and the parents can search for their kids by the username and couple to them, using that same code. For the logbook I used headers with the date, and I made this activity available for the kids theirselves too.
 
 I also didn't go with the swipe listeners. They didn't work as I expected so I made a menu in the Main Activity after all.
 
-In all activities there's checked if the user is really logged in by using the FirebaseAuth.getCurrentUser() function. Also in the logbook and in the couple activitie there's checked if the user is a parent, and the UI is updated accordingly. The parent can't leave these two activities. 
+In all activities there's checked if the user is really logged in by using the FirebaseAuth.getCurrentUser() function. Also in the logbook and in the couple activity there's checked if the user is a parent, and the UI is updated accordingly. The parent can't leave these two activities. 
 
 ### 1.1 Register/Log in Activity
 You register as a user or as a parent. Here, the Firebase Authentication Database is used. There is immediately made a user account for you in the 'normal' database, in which is saved if you're a parent, using the User class.
